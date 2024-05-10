@@ -4,7 +4,7 @@ Drawing tools for visual debugging in [VRChat](https://vrchat.com) worlds.
 
 Like [Unity Gizmos](https://docs.unity3d.com/ScriptReference/Gizmos.html) or [Debug.DrawLine](https://docs.unity3d.com/ScriptReference/Debug.DrawLine.html) but available at runtime so you can test in VR or on Android.
 
-![Screenshot 2024-05-10 105847](https://github.com/Vavassor/ParaDraw/assets/8423688/f33a1f9b-c483-46b6-95bd-9cb6d3ca42c2)
+![Screenshot 2024-05-10 130229](https://github.com/Vavassor/ParaDraw/assets/8423688/f8fff229-9635-456e-8bc8-f2635c408543)
 
 ## Features
 
