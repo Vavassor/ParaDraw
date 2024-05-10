@@ -39,16 +39,16 @@ namespace OrchidSeal.ParaDraw.Sample
 
             var capsuleEnd = p + new Vector3(0.5f, 0.15f, Wave(-0.8f, 0.8f, t));
             shapeDrawer.DrawWireCapsule(p, capsuleEnd, 0.1f, Color.cyan);
-            p += Vector3.right;
+            p = transform.position + 4.0f * Vector3.forward;
 
             var ellipsoidRotation = Quaternion.LookRotation(Vector3.one);
-            var ellipsoidX = ellipsoidRotation * (0.1f * Vector3.right);
-            var ellipsoidY = ellipsoidRotation * (0.5f * Vector3.up);
-            var ellipsoidZ = ellipsoidRotation * (0.2f * Vector3.forward);
-            shapeDrawer.DrawWireEllipsoid(p, ellipsoidX, ellipsoidY, ellipsoidZ, Color.green);
+            shapeDrawer.DrawWireEllipsoid(p, ellipsoidRotation, new Vector3(0.1f, 0.5f, 0.2f), Color.green);
             p += Vector3.right;
 
-            shapeDrawer.DrawWireEllipticCone(p, ellipsoidX, ellipsoidY, ellipsoidZ, Color.white);
+            var coneX = ellipsoidRotation * (0.1f * Vector3.right);
+            var coneY = ellipsoidRotation * (0.5f * Vector3.up);
+            var coneZ = ellipsoidRotation * (0.2f * Vector3.forward);
+            shapeDrawer.DrawWireEllipticCone(p, coneX, coneY, coneZ, Color.white);
             p += Vector3.right;
 
             shapeDrawer.DrawWireCone(p, -0.2f * Vector3.one, Wave(10.0f, 40.0f, t), Color.yellow);
@@ -58,7 +58,7 @@ namespace OrchidSeal.ParaDraw.Sample
             shapeDrawer.DrawWireFrustum(p, frustumRotation, 60.0f, 0.01f, 0.3f, 1.7777f, Color.cyan);
             p += Vector3.right;
 
-            shapeDrawer.DrawLine(p, p + Vector3.forward, Color.red);
+            shapeDrawer.DrawLine(p, p + new Vector3(0.5f, -0.2f, 0.4f), Color.red);
         }
 
         private float Wave(float min, float max, float t)

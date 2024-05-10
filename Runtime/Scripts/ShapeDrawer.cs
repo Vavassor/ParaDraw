@@ -187,7 +187,7 @@ namespace OrchidSeal.ParaDraw
             Vector3 axisZ = Vector3.forward;
             GetOrthogonalBasis(axisY, ref axisX, ref axisZ);
 
-            var radius = axisY.magnitude * Mathf.Atan(Mathf.Deg2Rad * angle);
+            var radius = axisY.magnitude * Mathf.Tan(Mathf.Deg2Rad * angle);
             axisX = radius * axisX.normalized;
             axisZ = radius * axisZ.normalized;
 
@@ -197,6 +197,14 @@ namespace OrchidSeal.ParaDraw
         public void DrawWireEllipse(Vector3 center, Vector3 axisX, Vector3 axisY, Vector2 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawEllipticArc(center, axisX, axisY, radii, 0.0f, 360.0f, color, lineWidth, duration);
+        }
+
+        public void DrawWireEllipsoid(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var axisX = rotation * (scale.x * Vector3.right);
+            var axisY = rotation * (scale.y * Vector3.up);
+            var axisZ = rotation * (scale.z * Vector3.forward);
+            DrawWireEllipsoid(center, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
         public void DrawWireEllipsoid(Vector3 center, Vector3 axisX, Vector3 axisY, Vector3 axisZ, Color color, float lineWidth = 0.005f, float duration = 0.0f)
@@ -224,10 +232,11 @@ namespace OrchidSeal.ParaDraw
             var arm = Vector3.zero;
             var lookRotation = Quaternion.LookRotation(axisZ, axisY);
             var radii = new Vector2(axisX.magnitude, axisZ.magnitude);
+            var turn = 2.0f * Mathf.PI / positionCount;
 
             for (var i = 0; i < positionCount; i += 2)
             {
-                var angle = 2.0f * Mathf.PI * ((float)i) / (positionCount);
+                var angle = turn * i;
                 arm.x = Mathf.Cos(angle) * radii.x;
                 arm.z = Mathf.Sin(angle) * radii.y;
                 lineRenderer.SetPosition(i, origin);
@@ -237,6 +246,16 @@ namespace OrchidSeal.ParaDraw
             EnableLineRenderer(lineRenderer, color, lineWidth, duration);
 
             DrawWireEllipse(origin + axisY, axisX, axisY, radii, color, lineWidth, duration);
+        }
+
+        public void DrawWireEllipticCone(Vector3 origin, Quaternion rotation, Vector2 angles, float height, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var radiusX = height * Mathf.Tan(Mathf.Deg2Rad * angles.x);
+            var radiusZ = height * Mathf.Tan(Mathf.Deg2Rad * angles.y);
+            var axisX = rotation * (radiusX * Vector3.right);
+            var axisY = rotation * (height * Vector3.up);
+            var axisZ = rotation * (radiusZ * Vector3.forward);
+            DrawWireEllipticCone(origin, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
         public void DrawWireFrustum(Vector3 origin, Quaternion rotation, float verticalFieldOfView, float nearPlane, float farPlane, float aspectRatio, Color color, float lineWidth = 0.005f, float duration = 0.0f)
