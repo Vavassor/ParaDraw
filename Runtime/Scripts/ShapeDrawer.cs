@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace OrchidSeal.ParaDraw
 {
+    /// <summary>
+    /// Draw shapes in 3D space.
+    /// </summary>
+    [DefaultExecutionOrder(-1)]
     public class ShapeDrawer : UdonSharpBehaviour
     {
         public GameObject linePrefab;
@@ -59,11 +63,31 @@ namespace OrchidSeal.ParaDraw
             new Vector3(-0.5f, 0.5f, -0.5f),
         };
 
+        /// <summary>
+        /// Draws a circular arc.
+        /// </summary>
+        /// <param name="origin">The circle center.</param>
+        /// <param name="axisX">The axis parallel to the circle. </param>
+        /// <param name="axisY">The axis of rotation.</param>
+        /// <param name="radius">The circle radius.</param>
+        /// <param name="startAngle">The angle between the X axis and the start of the arc, in degrees.</param>
+        /// <param name="endAngle">The angle between the X axis and the end of the arc, in degrees.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawArc(Vector3 origin, Vector3 axisX, Vector3 axisY, float radius, float startAngle, float endAngle, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawEllipticArc(origin, axisX, axisY, radius * Vector2.one, startAngle, endAngle, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws 3D axes representing a given transform.
+        /// </summary>
+        /// <param name="origin">The transform translation.</param>
+        /// <param name="rotation">The transform rotation.</param>
+        /// <param name="scale">The transform scale.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawAxes(Vector3 origin, Quaternion rotation, Vector3 scale, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawRay(origin, rotation * (scale.x * Vector3.right), Color.red, lineWidth, duration);
@@ -71,6 +95,18 @@ namespace OrchidSeal.ParaDraw
             DrawRay(origin, rotation * (scale.z * Vector3.forward), Color.blue, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws an elliptic arc.
+        /// </summary>
+        /// <param name="origin">The ellipse center.</param>
+        /// <param name="axisX">The axis parallel to the ellipse. </param>
+        /// <param name="axisY">The axis perpendicular to the ellipse.</param>
+        /// <param name="radii">The ellipse radii. X is the semi-major axis and Y is the semi-minor axis.</param>
+        /// <param name="startAngle">The angle between the X axis and the start of the arc, in degrees.</param>
+        /// <param name="endAngle">The angle between the X axis and the end of the arc, in degrees.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawEllipticArc(Vector3 origin, Vector3 axisX, Vector3 axisY, Vector2 radii, float startAngle, float endAngle, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -100,6 +136,14 @@ namespace OrchidSeal.ParaDraw
             EnableLineRenderer(lineRenderer, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a line segment between the given start and end points.
+        /// </summary>
+        /// <param name="start">The start point.</param>
+        /// <param name="end">The end point.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawLine(Vector3 start, Vector3 end, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -115,6 +159,13 @@ namespace OrchidSeal.ParaDraw
             EnableLineRenderer(lineRenderer, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a polyline between the given points. A polyline is a connected series of line segments.
+        /// </summary>
+        /// <param name="vertices">The points in the polyline.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawPolyline(Vector3[] vertices, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -130,6 +181,16 @@ namespace OrchidSeal.ParaDraw
             EnableLineRenderer(lineRenderer, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a polyline with a given transform. A polyline is a connected series of line segments.
+        /// </summary>
+        /// <param name="vertices">The points in the polyline.</param>
+        /// <param name="position">The transform translation.</param>
+        /// <param name="rotation">The transform rotation.</param>
+        /// <param name="scale">The transform scale.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawPolyline(Vector3[] vertices, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -149,18 +210,44 @@ namespace OrchidSeal.ParaDraw
             EnableLineRenderer(lineRenderer, color, lineWidth, duration);
         }
 
-        public void DrawRay(Vector3 start, Vector3 direction, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        /// <summary>
+        /// Draws a ray.
+        /// </summary>
+        /// <param name="origin">The ray origin.</param>
+        /// <param name="direction">The ray direciton.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawRay(Vector3 origin, Vector3 direction, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var end = start + direction;
-            DrawLine(start, end, color, lineWidth, duration);
+            var end = origin + direction;
+            DrawLine(origin, end, color, lineWidth, duration);
             DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction), 0.02f * Vector3.one, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe box. (rectangular cuboid)
+        /// </summary>
+        /// <param name="center">The box center.</param>
+        /// <param name="rotation">The box rotation.</param>
+        /// <param name="scale">The box scale. This is half of the side lengths.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireBox(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawPolyline(boxVertices, center, rotation, scale, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe capsule.
+        /// </summary>
+        /// <param name="start">The start point of the center line.</param>
+        /// <param name="end">The end point of the center line.</param>
+        /// <param name="radius">The distance from the center line to the surface.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireCapsule(Vector3 start, Vector3 end, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var axisY = end - start;
@@ -176,11 +263,29 @@ namespace OrchidSeal.ParaDraw
             DrawWireStadium(start, end, axisZ, radius, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe circle.
+        /// </summary>
+        /// <param name="center">The circle center.</param>
+        /// <param name="axis">The axis of rotation.</param>
+        /// <param name="radius">The circle radius.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireCircle(Vector3 center, Vector3 axis, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawEllipticArc(center, GetOrthogonalVector(axis), axis, Vector2.one * radius, 0.0f, 360.0f, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe circular cone.
+        /// </summary>
+        /// <param name="origin">The apex point.</param>
+        /// <param name="axisY">The axis of rotation.</param>
+        /// <param name="angle">The angle between the axis and the lateral surface, in degrees.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireCone(Vector3 origin, Vector3 axisY, float angle, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             Vector3 axisX = Vector3.right;
@@ -194,11 +299,30 @@ namespace OrchidSeal.ParaDraw
             DrawWireEllipticCone(origin, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe ellipse.
+        /// </summary>
+        /// <param name="center">The ellipse center.</param>
+        /// <param name="axisX">The axis parallel to the ellipse. </param>
+        /// <param name="axisY">The axis perpendicular to the ellipse.</param>
+        /// <param name="radii">The ellipse radii. X is the semi-major axis and Y is the semi-minor axis.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireEllipse(Vector3 center, Vector3 axisX, Vector3 axisY, Vector2 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawEllipticArc(center, axisX, axisY, radii, 0.0f, 360.0f, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe ellipsoid with a given rotation and lengths of semi-axes.
+        /// </summary>
+        /// <param name="center">The center point.</param>
+        /// <param name="rotation">The rotation.</param>
+        /// <param name="scale">The lengths of the semi-axes.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireEllipsoid(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var axisX = rotation * (scale.x * Vector3.right);
@@ -207,6 +331,16 @@ namespace OrchidSeal.ParaDraw
             DrawWireEllipsoid(center, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe ellipsoid with given semi-axes.
+        /// </summary>
+        /// <param name="center">The center point.</param>
+        /// <param name="axisX">The X semi-axis.</param>
+        /// <param name="axisY">The Y semi-axis.</param>
+        /// <param name="axisZ">The Z semi-axis.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireEllipsoid(Vector3 center, Vector3 axisX, Vector3 axisY, Vector3 axisZ, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var x = axisX.magnitude;
@@ -217,6 +351,16 @@ namespace OrchidSeal.ParaDraw
             DrawWireEllipse(center, axisX, axisZ, new Vector2(x, y), color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe elliptic cone with a given basis.
+        /// </summary>
+        /// <param name="origin">The apex point.</param>
+        /// <param name="axisX">The semi-major axis.</param>
+        /// <param name="axisY">The axis of rotation, whose length is the cone height.</param>
+        /// <param name="axisZ">The semi-minor axis.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireEllipticCone(Vector3 origin, Vector3 axisX, Vector3 axisY, Vector3 axisZ, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -248,6 +392,16 @@ namespace OrchidSeal.ParaDraw
             DrawWireEllipse(origin + axisY, axisX, axisY, radii, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe elliptic cone with a given rotation and angles.
+        /// </summary>
+        /// <param name="origin">The apex point.</param>
+        /// <param name="rotation">The cone rotation.</param>
+        /// <param name="angles">The angles between the axis and the lateral surface along each of the semi-axes.</param>
+        /// <param name="height">The cone height.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireEllipticCone(Vector3 origin, Quaternion rotation, Vector2 angles, float height, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var radiusX = height * Mathf.Tan(Mathf.Deg2Rad * angles.x);
@@ -258,6 +412,18 @@ namespace OrchidSeal.ParaDraw
             DrawWireEllipticCone(origin, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe rectangular frustum. A frustum is a pyramid with the tip cut off.
+        /// </summary>
+        /// <param name="origin">The apex point.</param>
+        /// <param name="rotation">The frustum rotation.</param>
+        /// <param name="verticalFieldOfView">The angle in degrees between the lateral surfaces in the vertical plane.</param>
+        /// <param name="nearPlane">The distance from the apex to the near plane.</param>
+        /// <param name="farPlane">The distance from the apex to the far plane.</param>
+        /// <param name="aspectRatio">The ratio of the width and height of the rectangle.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireFrustum(Vector3 origin, Quaternion rotation, float verticalFieldOfView, float nearPlane, float farPlane, float aspectRatio, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -318,11 +484,29 @@ namespace OrchidSeal.ParaDraw
             EnableLineRenderer(lineRenderer, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe sphere.
+        /// </summary>
+        /// <param name="center">The sphere center.</param>
+        /// <param name="radius">The sphere radius.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireSphere(Vector3 center, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawWireEllipsoid(center, radius * Vector3.right, radius * Vector3.up, radius * Vector3.forward, color, lineWidth, duration);
         }
 
+        /// <summary>
+        /// Draws a wireframe stadium. A stadium is a 2D pill shape.
+        /// </summary>
+        /// <param name="start">The start point of the center line.</param>
+        /// <param name="end">The end point of the center line.</param>
+        /// <param name="normal">The axis perpendicular to the stadium.</param>
+        /// <param name="radius">The distance from the center line to the perimeter.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireStadium(Vector3 start, Vector3 end, Vector3 normal, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             var lineRenderer = AllocateLineRenderer();
@@ -391,6 +575,25 @@ namespace OrchidSeal.ParaDraw
             return lineRenderers[lineIndexEnd];
         }
 
+        private void DeallocateLineRenderer(int index)
+        {
+            var lastLineIndex = lineIndexEnd - 1;
+
+            lineRenderers[index].enabled = false;
+            lineIndexEnd -= 1;
+
+            if (index == lastLineIndex)
+            {
+                return;
+            }
+
+            lineDurations[index] = lineDurations[lastLineIndex];
+
+            var tempRenderer = lineRenderers[index];
+            lineRenderers[index] = lineRenderers[lastLineIndex];
+            lineRenderers[lastLineIndex] = tempRenderer;
+        }
+
         private void EnableLineRenderer(LineRenderer lineRenderer, Color color, float lineWidth, float duration)
         {
             lineRenderer.widthMultiplier = lineWidth;
@@ -445,26 +648,6 @@ namespace OrchidSeal.ParaDraw
             }
         }
 
-
-        private void RemoveLineSegment(int index)
-        {
-            var lastLineIndex = lineIndexEnd - 1;
-
-            lineRenderers[index].enabled = false;
-            lineIndexEnd -= 1;
-
-            if (index == lastLineIndex)
-            {
-                return;
-            }
-
-            lineDurations[index] = lineDurations[lastLineIndex];
-
-            var tempRenderer = lineRenderers[index];
-            lineRenderers[index] = lineRenderers[lastLineIndex];
-            lineRenderers[lastLineIndex] = tempRenderer;
-        }
-
         private void Update()
         {
             UpdateLines();
@@ -480,7 +663,7 @@ namespace OrchidSeal.ParaDraw
 
                 if (lineDurations[i] <= 0.0f)
                 {
-                    RemoveLineSegment(i);
+                    DeallocateLineRenderer(i);
                 }
                 else
                 {
