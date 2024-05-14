@@ -3,7 +3,6 @@ using UdonSharp;
 
 namespace OrchidSeal.ParaDraw.Sample
 {
-    [DefaultExecutionOrder(1)]
     public class DynamicSample : UdonSharpBehaviour
     {
         public ShapeDrawer shapeDrawer;
@@ -58,7 +57,18 @@ namespace OrchidSeal.ParaDraw.Sample
             shapeDrawer.DrawWireFrustum(p, frustumRotation, 60.0f, 0.01f, 0.3f, 1.7777f, Color.cyan);
             p += Vector3.right;
 
-            shapeDrawer.DrawLine(p, p + new Vector3(0.5f, -0.2f, 0.4f), Color.red);
+            var lineStart = p;
+            lineStart.y += Wave(-0.1f, 0.1f, t);
+            var lineEnd = p + new Vector3(0.5f, -0.2f, 0.4f);
+            lineEnd.y += Wave(-0.1f, 0.1f, t + 0.25f);
+            shapeDrawer.DrawLine(lineStart, lineEnd, Color.red);
+            shapeDrawer.DrawPoint(lineStart, Color.white);
+            shapeDrawer.DrawText("A", lineStart, Color.white, 0.05f);
+            shapeDrawer.DrawPoint(lineEnd, Color.white);
+            shapeDrawer.DrawText("B", lineEnd, Color.white, 0.05f);
+            p += Vector3.right;
+
+            shapeDrawer.DrawText("frame time\n" + (100.0f * Time.unscaledDeltaTime).ToString("n3") + " ms", p, Color.cyan);
         }
 
         private float Wave(float min, float max, float t)

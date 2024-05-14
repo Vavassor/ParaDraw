@@ -4,6 +4,9 @@
     "name": "Andrew Dawson",
     "url": "https://vavassor.github.io/"
   },
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6"
+  },
   "description": "Drawing tools for visual debugging in VRChat worlds.",
   "displayName": "ParaDraw",
   "keywords": [
@@ -22,8 +25,8 @@
   ],
   "unity": "2022.3",
   "unityRelease": "6f1",
-  "url": "https://github.com/Vavassor/ParaDraw/releases/download/v0.3.0/com.orchidseal.paradraw-0.3.0.zip",
-  "version": "0.3.0",
+  "url": "https://github.com/Vavassor/ParaDraw/releases/download/v0.4.0/com.orchidseal.paradraw-0.4.0.zip",
+  "version": "0.4.0",
   "vpmDependencies": {
     "com.vrchat.worlds": "3.5.x"
   }

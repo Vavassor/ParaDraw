@@ -7,17 +7,20 @@ namespace OrchidSeal.ParaDraw
     /// Draw shapes in 3D space.
     /// </summary>
     [DefaultExecutionOrder(-1)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class ShapeDrawer : UdonSharpBehaviour
     {
         public GameObject linePrefab;
         public LineRenderer[] lineRenderers = new LineRenderer[16];
         public GameObject linesGroup;
+        public TextDrawer textDrawer;
 
         private float[] lineDurations = new float[16];
         private int lineIndexEnd;
         private GameObject[] lineObjects = new GameObject[16];
+        
 
-        private Vector3[] arrowheadVertices = new Vector3[]
+        private readonly Vector3[] arrowheadVertices = new Vector3[]
         {
             new Vector3(-1.0f, -1.0f, -1.4142f),
             new Vector3(0.0f, 0.0f, 0.0f),
@@ -38,7 +41,7 @@ namespace OrchidSeal.ParaDraw
             new Vector3(-1.0f, -1.0f, -1.4142f),
         };
 
-        private Vector3[] boxVertices = new Vector3[]
+        private readonly Vector3[] boxVertices = new Vector3[]
         {
             new Vector3(-0.5f, -0.5f, -0.5f),
             new Vector3(-0.5f, -0.5f, 0.5f),
@@ -160,6 +163,18 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
+        /// Draws a point.
+        /// </summary>
+        /// <param name="point">The point position.</param>
+        /// <param name="color">The point color.</param>
+        /// <param name="radius">The point radius.</param>
+        /// <param name="duration">The number of seconds the point should be visible for.</param>
+        public void DrawPoint(Vector3 point, Color color, float radius = 0.02f, float duration = 0.0f)
+        {
+            DrawWireCircle(point, Vector3.up, 0.5f * radius, color, radius, duration);
+        }
+
+        /// <summary>
         /// Draws a polyline between the given points. A polyline is a connected series of line segments.
         /// </summary>
         /// <param name="vertices">The points in the polyline.</param>
@@ -223,6 +238,33 @@ namespace OrchidSeal.ParaDraw
             var end = origin + direction;
             DrawLine(origin, end, color, lineWidth, duration);
             DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction), 0.02f * Vector3.one, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws text at a position in 3D space. Text always faces the camera.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="position">The text center.</param>
+        /// <param name="color">The font color.</param>
+        /// <param name="yOffset">The text center height above the given position.</param>
+        /// <param name="duration">The number of seconds the text should be visible for.</param>
+        public void DrawText(string text, Vector3 position, Color color, float yOffset = 0.0f, float duration = 0.0f)
+        {
+            textDrawer.DrawText(text, position, Vector3.one, color, yOffset, duration);
+        }
+
+        /// <summary>
+        /// Draws text at a position in 3D space with a given scale. Text always faces the camera.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="position">The text center.</param>
+        /// <param name="scale">The text scale.</param>
+        /// <param name="color">The font color.</param>
+        /// <param name="yOffset">The text center height above the given position.</param>
+        /// <param name="duration">The number of seconds the text should be visible for.</param>
+        public void DrawText(string text, Vector3 position, Vector3 scale, Color color, float yOffset = 0.0f, float duration = 0.0f)
+        {
+            textDrawer.DrawText(text, position, scale, color, yOffset, duration);
         }
 
         /// <summary>
