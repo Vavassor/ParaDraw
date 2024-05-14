@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0
+
+Released May 14, 2024.
+
+- Added text drawing.
+- Added point drawing.
+
 ## v0.3.0
 
 Released May 12, 2024.
