@@ -14,12 +14,13 @@ namespace OrchidSeal.ParaDraw
         public LineRenderer[] lineRenderers = new LineRenderer[16];
         public GameObject linesGroup;
         public MeshDrawer meshDrawer;
+        public ParticleSystem pointSystem;
         public TextDrawer textDrawer;
 
+        private ParticleSystem.EmitParams emitParams;
         private float[] lineDurations = new float[16];
         private int lineIndexEnd;
-        private GameObject[] lineObjects = new GameObject[16];
-        
+        private GameObject[] lineObjects = new GameObject[16];        
 
         private readonly Vector3[] arrowheadVertices = new Vector3[]
         {
@@ -172,7 +173,11 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the point should be visible for.</param>
         public void DrawPoint(Vector3 point, Color color, float radius = 0.02f, float duration = 0.0f)
         {
-            DrawWireCircle(point, Vector3.up, 0.5f * radius, color, radius, duration);
+            emitParams.position = point;
+            emitParams.startColor = color;
+            emitParams.startSize = radius;
+            emitParams.startLifetime = Mathf.Max(duration, Time.deltaTime + 1e-4f);
+            pointSystem.Emit(emitParams, 1);
         }
 
         /// <summary>
@@ -817,11 +822,6 @@ namespace OrchidSeal.ParaDraw
         }
 
         private void Update()
-        {
-            UpdateLines();
-        }
-
-        private void UpdateLines()
         {
             var i = 0;
 

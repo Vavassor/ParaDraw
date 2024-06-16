@@ -2,11 +2,13 @@
 
 ## v0.5.0
 
-Released June 15, 2024.
+Released June 16, 2024.
 
 - Added mesh drawing.
 - Added collider drawing.
 - Changed DrawWireBox to use size instead of extents. It was using size before, just incorrectly labeled as "extents".
+- Fixes text rolling with head movement in VR.
+- Updates point drawing to draw circles.
 
 ## v0.4.0
 
