@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "TextMeshPro/Distance Field-BillboardFacing"
 {
 	// Billboarding version for TextMeshPro (tested in 2018.3), based on default Distance Field shader. 
@@ -96,7 +98,7 @@ Shader "TextMeshPro/Distance Field-BillboardFacing"
 	{
 		Tags
 		{
-			"Queue" = "Transparent+8000"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 
@@ -114,7 +116,7 @@ Shader "TextMeshPro/Distance Field-BillboardFacing"
 		}
 
 		Cull[_CullMode]
-		ZWrite On
+		ZWrite Off
 		Lighting Off
 		Fog { Mode Off }
 		ZTest LEqual
@@ -168,6 +170,31 @@ Shader "TextMeshPro/Distance Field-BillboardFacing"
 			float4 _FaceTex_ST;
 			float4 _OutlineTex_ST;
 
+			float3 GetCenterCameraPosition()
+			{
+#if defined(USING_STEREO_MATRICES)
+				float3 worldPosition = (unity_StereoWorldSpaceCameraPos[0] + unity_StereoWorldSpaceCameraPos[1]) / 2.0;
+#else
+				float3 worldPosition = _WorldSpaceCameraPos.xyz;
+#endif
+				return worldPosition;
+			}
+
+			float4x4 LookAtMatrix(float3 forward, float3 up)
+			{
+				float3 xAxis = normalize(cross(forward, up));
+				float3 yAxis = up;
+				float3 zAxis = forward;
+				return float4x4(
+					xAxis.x, yAxis.x, zAxis.x, 0,
+					xAxis.y, yAxis.y, zAxis.y, 0,
+					xAxis.z, yAxis.z, zAxis.z, 0,
+					0, 0, 0, 1
+					);
+			}
+
+			float _VRChatCameraMode;
+
 			pixel_t VertShader(vertex_t input)
 			{
 				float bold = step(input.texcoord1.y, 0);
@@ -176,9 +203,24 @@ Shader "TextMeshPro/Distance Field-BillboardFacing"
 				vert.x += _VertexOffsetX;
 				vert.y += _VertexOffsetY;
 
+				// Display in the canvas normally.
+				// float4 vPosition = UnityObjectToClipPos(vert);
+
+			#if defined(USING_STEREO_MATRICES)
+				// Face camera, but keep the text upright. Otherwise the text rolls as the player rocks their
+				// head and it's sickening.
+				float3 cameraPositionWs = GetCenterCameraPosition();
+				float3 objectCenterWs = mul(unity_ObjectToWorld, float4(0, 0, 0, 1)).xyz;
+				float3 forward = mul(unity_ObjectToWorld, float4(0, 0, 1, 0)).xyz;
+				float3 viewDirectionWs = cameraPositionWs - objectCenterWs;
+				float3x3 rotation = LookAtMatrix(viewDirectionWs, float3(0, 1, 0));
+				float3 positionWs = mul(rotation, length(forward) * vert.xyz) + objectCenterWs.xyz;
+				float4 vPosition = mul(UNITY_MATRIX_VP, float4(positionWs, 1.0));
+			#else
 				// Face camera: based upon: https://en.wikibooks.org/wiki/Cg_Programming/Unity/Billboards
 				float3 vScale = float3(length(unity_ObjectToWorld[0].xyz), length(unity_ObjectToWorld[1].xyz), length(unity_ObjectToWorld[2].xyz));
 				float4 vPosition = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_MV, float4(0.0, 0.0, 0.0, 1.0 / vScale.x)) + float4(vert.x, vert.y, vert.z, vert.w));
+			#endif
 
 				float2 pixelSize = vPosition.w;
 				pixelSize /= float2(_ScaleX, _ScaleY) * abs(mul((float2x2)UNITY_MATRIX_P, _ScreenParams.xy));
