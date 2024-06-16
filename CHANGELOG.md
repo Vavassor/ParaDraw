@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.0
+
+Released June 15, 2024.
+
+- Added mesh drawing.
+- Added collider drawing.
+- Changed DrawWireBox to use size instead of extents. It was using size before, just incorrectly labeled as "extents".
+
 ## v0.4.0
 
 Released May 14, 2024.

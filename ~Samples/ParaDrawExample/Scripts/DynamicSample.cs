@@ -27,7 +27,7 @@ namespace OrchidSeal.ParaDraw.Sample
             shapeDrawer.DrawEllipticArc(p, arcRight, arcAxis, new Vector2(0.21f, 0.51f), angle, angle + 60.0f, Color.red, 0.03f);
             p += Vector3.right;
 
-            shapeDrawer.DrawAxes(p, Quaternion.AngleAxis(angle, new Vector3(4.0f, -1.0f, -3.0f)), 0.4f * Vector3.one);
+            shapeDrawer.DrawAxes(p, Quaternion.AngleAxis(angle, new Vector3(4.0f, -1.0f, -3.0f)), Wave(0.02f, 2.0f, t) * 0.4f * Vector3.one);
             p += Vector3.right;
 
             var boxRotation = Quaternion.LookRotation(new Vector3(-1.0f, 2.0f, 0.0f));

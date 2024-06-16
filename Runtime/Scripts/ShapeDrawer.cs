@@ -13,6 +13,7 @@ namespace OrchidSeal.ParaDraw
         public GameObject linePrefab;
         public LineRenderer[] lineRenderers = new LineRenderer[16];
         public GameObject linesGroup;
+        public MeshDrawer meshDrawer;
         public TextDrawer textDrawer;
 
         private float[] lineDurations = new float[16];
@@ -237,7 +238,9 @@ namespace OrchidSeal.ParaDraw
         {
             var end = origin + direction;
             DrawLine(origin, end, color, lineWidth, duration);
-            DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction), 0.02f * Vector3.one, color, lineWidth, duration);
+
+            var arrowheadScale = (0.1f * Mathf.Min(direction.magnitude, 0.2f)) * Vector3.one;
+            DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction), arrowheadScale, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -272,13 +275,26 @@ namespace OrchidSeal.ParaDraw
         /// </summary>
         /// <param name="center">The box center.</param>
         /// <param name="rotation">The box rotation.</param>
-        /// <param name="scale">The box scale. This is half of the side lengths.</param>
+        /// <param name="size">The box side lengths.</param>
         /// <param name="color">The line color.</param>
         /// <param name="lineWidth">The line width.</param>
         /// <param name="duration">The number of seconds the line should be visible for.</param>
-        public void DrawWireBox(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        public void DrawWireBox(Vector3 center, Quaternion rotation, Vector3 size, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            DrawPolyline(boxVertices, center, rotation, scale, color, lineWidth, duration);
+            DrawPolyline(boxVertices, center, rotation, size, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a wireframe box collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawWireBoxCollider(BoxCollider collider, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            DrawWireBox(colliderTransform.TransformPoint(collider.center), colliderTransform.rotation, Vector3.Scale(colliderTransform.lossyScale, collider.size), color, lineWidth, duration);
         }
 
         /// <summary>
@@ -306,6 +322,44 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
+        /// Draws a wireframe capsule collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawWireCapsuleCollider(CapsuleCollider collider, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            Vector3 axis;
+            float radius;
+            var colliderTransform = collider.transform;
+            var lossyScale = colliderTransform.lossyScale;
+            var extent = 0.5f * Mathf.Max(collider.height - 2.0f * collider.radius, 0.0001f);
+
+            switch (collider.direction)
+            {
+                default:
+                case 0:
+                    radius = Mathf.Max(lossyScale.y, lossyScale.z) * collider.radius;
+                    axis = colliderTransform.TransformDirection(extent * lossyScale.x * Vector3.right);
+                    break;
+                case 1:
+                    radius = Mathf.Max(lossyScale.x, lossyScale.z) * collider.radius;
+                    axis = colliderTransform.TransformDirection(extent * lossyScale.y * Vector3.up);
+                    break;
+                case 2:
+                    radius = Mathf.Max(lossyScale.x, lossyScale.y) * collider.radius;
+                    axis = colliderTransform.TransformDirection(extent * lossyScale.z * Vector3.forward);
+                    break;
+            }
+
+            var center = colliderTransform.TransformPoint(collider.center);
+            var start = center + axis;
+            var end = center - axis;
+            DrawWireCapsule(start, end, radius, color, lineWidth, duration);
+        }
+
+        /// <summary>
         /// Draws a wireframe circle.
         /// </summary>
         /// <param name="center">The circle center.</param>
@@ -317,6 +371,35 @@ namespace OrchidSeal.ParaDraw
         public void DrawWireCircle(Vector3 center, Vector3 axis, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawEllipticArc(center, GetOrthogonalVector(axis), axis, Vector2.one * radius, 0.0f, 360.0f, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a wireframe collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawWireCollider(Collider collider, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var foundType = collider.GetType();
+
+            if (foundType == typeof(BoxCollider))
+            {
+                DrawWireBoxCollider((BoxCollider)collider, color, lineWidth, duration);
+            }
+            else if (foundType == typeof(CapsuleCollider))
+            {
+                DrawWireCapsuleCollider((CapsuleCollider)collider, color, lineWidth, duration);
+            }
+            else if (foundType == typeof(MeshCollider))
+            {
+                DrawWireMeshCollider((MeshCollider)collider, color, lineWidth, duration);
+            }
+            else if (foundType == typeof(SphereCollider))
+            {
+                DrawWireSphereCollider((SphereCollider)collider, color, lineWidth, duration);
+            }
         }
 
         /// <summary>
@@ -527,6 +610,33 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
+        /// Draws a mesh with a given transform.
+        /// </summary>
+        /// <param name="position">The transform translation.</param>
+        /// <param name="rotation">The transform rotation.</param>
+        /// <param name="scale">The transform scale.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            meshDrawer.DrawWireMesh(mesh, position, rotation, scale, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a mesh collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the mesh should be visible for.</param>
+        public void DrawWireMeshCollider(MeshCollider collider, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            meshDrawer.DrawWireMesh(collider.sharedMesh, colliderTransform.position, colliderTransform.rotation, colliderTransform.lossyScale, color, lineWidth, duration);
+        }
+
+        /// <summary>
         /// Draws a wireframe sphere.
         /// </summary>
         /// <param name="center">The sphere center.</param>
@@ -537,6 +647,22 @@ namespace OrchidSeal.ParaDraw
         public void DrawWireSphere(Vector3 center, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawWireEllipsoid(center, radius * Vector3.right, radius * Vector3.up, radius * Vector3.forward, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a wireframe sphere collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawWireSphereCollider(SphereCollider collider, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            var lossyScale = colliderTransform.lossyScale;
+            var center = colliderTransform.TransformPoint(collider.center);
+            var radius = collider.radius * Mathf.Max(lossyScale.x, lossyScale.y, lossyScale.z);
+            DrawWireSphere(center, radius, color, lineWidth, duration);
         }
 
         /// <summary>

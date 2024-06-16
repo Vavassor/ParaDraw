@@ -6,6 +6,7 @@ namespace OrchidSeal.ParaDraw
     /// <summary>
     /// Draw text in 3D space.
     /// </summary>
+    [DefaultExecutionOrder(-1)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class TextDrawer : UdonSharpBehaviour
     {
