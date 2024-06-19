@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.0
+
+- Fixes ShapeDrawer queueing up shapes when it's disabled, causing it to draw them all at once when it's enabled.
+
 ## v0.5.0
 
 Released June 16, 2024.

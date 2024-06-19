@@ -20,7 +20,7 @@ namespace OrchidSeal.ParaDraw
         private ParticleSystem.EmitParams emitParams;
         private float[] lineDurations = new float[16];
         private int lineIndexEnd;
-        private GameObject[] lineObjects = new GameObject[16];        
+        private GameObject[] lineObjects = new GameObject[16];
 
         private readonly Vector3[] arrowheadVertices = new Vector3[]
         {
@@ -173,6 +173,11 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the point should be visible for.</param>
         public void DrawPoint(Vector3 point, Color color, float radius = 0.02f, float duration = 0.0f)
         {
+            if (!gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
             emitParams.position = point;
             emitParams.startColor = color;
             emitParams.startSize = radius;
@@ -723,6 +728,11 @@ namespace OrchidSeal.ParaDraw
 
         private LineRenderer AllocateLineRenderer()
         {
+            if (!gameObject.activeInHierarchy)
+            {
+                return null;
+            }
+
             if (lineIndexEnd > lineRenderers.Length - 1)
             {
                 var lineCount = lineRenderers.Length;

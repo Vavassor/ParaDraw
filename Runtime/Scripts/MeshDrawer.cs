@@ -23,7 +23,7 @@ namespace OrchidSeal.ParaDraw
         {
             AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer);
 
-            if (meshFilter == null)
+            if (!meshFilter)
             {
                 return;
             }
@@ -41,6 +41,13 @@ namespace OrchidSeal.ParaDraw
 
         private void AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer)
         {
+            if (!gameObject.activeInHierarchy)
+            {
+                meshFilter = null;
+                meshRenderer = null;
+                return;
+            }
+
             if (meshIndexEnd > meshFilters.Length - 1)
             {
                 var meshCount = meshFilters.Length;

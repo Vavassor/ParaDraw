@@ -39,6 +39,11 @@ namespace OrchidSeal.ParaDraw
 
         private TMPro.TextMeshProUGUI AllocateText()
         {
+            if (!gameObject.activeInHierarchy)
+            {
+                return null;
+            }
+
             if (textIndexEnd > texts.Length - 1)
             {
                 var textCount = texts.Length;

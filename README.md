@@ -28,11 +28,13 @@ There's a few options to use the tools.
 
 Download the [latest Unity Package](https://github.com/vavassor/ParaDraw/releases/latest) and follow the directions for [importing local asset packages](https://docs.unity3d.com/2023.1/Documentation/Manual/AssetPackagesImport.html) into your Unity project.
 
-### Using
+### How to Use
 
 Drag the ShapeDrawer prefab into your scene. ShapeDrawer is in the folder `Packages/ParaDraw/Runtime/Prefabs`.
 
 Add the ShapeDrawer as a variable to any script you want to debug. And call whatever draw methods you like!
+
+Check out the [Wiki](https://github.com/Vavassor/ParaDraw/wiki) for more guides!
 
 ## License
 
