@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - SILHOUETTE_FADING_ON
   - UNDERLAY_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 1
@@ -81,6 +82,7 @@ Material:
     - _ScaleY: 1000
     - _ShaderFlags: 0
     - _Sharpness: 0
+    - _SilhouetteFadingEnabled: 1
     - _SpecularPower: 2
     - _Stencil: 0
     - _StencilComp: 8
@@ -106,6 +108,7 @@ Material:
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SilhouetteFadeParams: {r: -0.5, g: 1, b: 0.51, a: 0}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _UnderlayColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

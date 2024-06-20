@@ -3,6 +3,7 @@
 ## v0.6.0
 
 - Fixes ShapeDrawer queueing up shapes when it's disabled, causing it to draw them all at once when it's enabled.
+- Makes points and text show through nearby surfaces.
 
 ## v0.5.0
 
