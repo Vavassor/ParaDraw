@@ -1,6 +1,10 @@
 ﻿using UdonSharp;
 using UnityEngine;
 
+#if UNITY_ANDROID
+using VRC.SDK3.Data;
+#endif // UNITY_ANDROID
+
 namespace OrchidSeal.ParaDraw
 {
     /// <summary>
@@ -13,15 +17,23 @@ namespace OrchidSeal.ParaDraw
         public GameObject[] meshObjects = new GameObject[4];
         public GameObject meshPrefab;
         public GameObject meshesGroup;
+        public Material androidWireMaterial;
+
+#if UNITY_ANDROID
+        private int cachedMeshIndex;
+        private readonly Mesh[] cachedMeshes = new Mesh[16];
+        private readonly DataDictionary meshCacheIndicesById = new DataDictionary();
+#endif // UNITY_ANDROID
 
         private float[] meshDurations = new float[4];
         private int meshIndexEnd;
         private MeshFilter[] meshFilters = new MeshFilter[4];
         private MeshRenderer[] meshRenderers = new MeshRenderer[4];
+        private MaterialPropertyBlock[] propertyBlocks = new MaterialPropertyBlock[4];
 
-        public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)
         {
-            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer);
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
 
             if (!meshFilter)
             {
@@ -29,9 +41,44 @@ namespace OrchidSeal.ParaDraw
             }
 
             var meshObject = meshObjects[meshIndexEnd];
+
+#if UNITY_ANDROID
+            // Quest 2 headset doesn't support geometry shaders. So render wireframes based on 
+            // barycentric coordinates. This requires a mesh with split triangles. Splitting is
+            // intensive, so split the mesh the first time and cache it for later.
+            if (!mesh.isReadable)
+            {
+                // Using the original non-split mesh will appear as a broken wireframe. But at least
+                // it'll be visible.
+                meshFilter.mesh = mesh;
+            }
+            else if (shouldCache)
+            {
+                meshFilter.mesh = GetWireMeshCached(mesh);
+            }
+            else
+            {
+                meshFilter.mesh = GetWireMeshUncached(mesh);
+            }
+
+            if (meshRenderer.sharedMaterial != androidWireMaterial)
+            {
+                var materials = meshRenderer.materials;
+
+                for (var i = 0; i < materials.Length; i++)
+                {
+                    materials[i] = androidWireMaterial;
+                }
+
+                meshRenderer.materials = materials;
+            }
+#else
             meshFilter.mesh = mesh;
-            meshRenderer.material.SetColor("_WireColor", color);
-            meshRenderer.material.SetFloat("_WireThickness", lineWidth * 20000.0f);
+#endif // UNITY_ANDROID
+
+            propertyBlock.SetColor("_WireColor", color);
+            propertyBlock.SetFloat("_WireThickness", lineWidth * 20000.0f);
+            meshRenderer.SetPropertyBlock(propertyBlock);
             meshRenderer.enabled = true;
             meshObject.transform.SetPositionAndRotation(position, rotation);
             meshObject.transform.localScale = scale;
@@ -39,12 +86,13 @@ namespace OrchidSeal.ParaDraw
             meshIndexEnd += 1;
         }
 
-        private void AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer)
+        private void AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock)
         {
             if (!gameObject.activeInHierarchy)
             {
                 meshFilter = null;
                 meshRenderer = null;
+                propertyBlock = null;
                 return;
             }
 
@@ -56,26 +104,31 @@ namespace OrchidSeal.ParaDraw
                 var newMeshObjects = new GameObject[newMeshCount];
                 var newMeshFilters = new MeshFilter[newMeshCount];
                 var newMeshRenderers = new MeshRenderer[newMeshCount];
+                var newPropertyBlocks = new MaterialPropertyBlock[newMeshCount];
                 System.Array.Copy(meshDurations, newMeshDurations, meshCount);
                 System.Array.Copy(meshObjects, newMeshObjects, meshCount);
                 System.Array.Copy(meshFilters, newMeshFilters, meshCount);
                 System.Array.Copy(meshRenderers, newMeshRenderers, meshCount);
+                System.Array.Copy(propertyBlocks, newPropertyBlocks, meshCount);
 
                 for (var i = meshCount; i < newMeshCount; i++)
                 {
                     newMeshObjects[i] = Instantiate(meshPrefab, meshesGroup.transform);
                     newMeshFilters[i] = newMeshObjects[i].GetComponentInChildren<MeshFilter>();
                     newMeshRenderers[i] = newMeshObjects[i].GetComponentInChildren<MeshRenderer>();
+                    newPropertyBlocks[i] = new MaterialPropertyBlock();
                 }
 
                 meshDurations = newMeshDurations;
                 meshObjects = newMeshObjects;
                 meshFilters = newMeshFilters;
                 meshRenderers = newMeshRenderers;
+                propertyBlocks = newPropertyBlocks;
             }
 
             meshFilter = meshFilters[meshIndexEnd];
             meshRenderer = meshRenderers[meshIndexEnd];
+            propertyBlock = propertyBlocks[meshIndexEnd];
         }
 
         private void DeallocateMesh(int index)
@@ -103,7 +156,70 @@ namespace OrchidSeal.ParaDraw
             var tempMeshObject = meshObjects[index];
             meshObjects[index] = meshObjects[lastMeshIndex];
             meshObjects[lastMeshIndex] = tempMeshObject;
+
+            var tempBlock = propertyBlocks[index];
+            propertyBlocks[index] = propertyBlocks[lastMeshIndex];
+            propertyBlocks[lastMeshIndex] = tempBlock;
         }
+
+#if UNITY_ANDROID
+        private Mesh GetWireMeshUncached(Mesh sourceMesh)
+        {
+            var triangles = sourceMesh.triangles;
+            var vertexCount = triangles.Length;
+            var vertices = sourceMesh.vertices;
+
+            // Split all triangles in the mesh.
+            var newVertices = new Vector3[vertexCount];
+            for (var i = 0; i < vertexCount; i++)
+            {
+                newVertices[i] = vertices[triangles[i]];
+            }
+
+            var newTriangles = new int[vertexCount];
+            for (var i = 0; i < vertexCount; i++)
+            {
+                newTriangles[i] = i;
+            }
+
+            Mesh wireMesh = new Mesh();
+
+            // 65536 is 2^16. So 65535 is the largest number that fits in a 16-bit index.
+            if (vertexCount >= 65536)
+            {
+                wireMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            }
+            
+            wireMesh.vertices = newVertices;
+            wireMesh.triangles = newTriangles;
+
+            return wireMesh;
+        }
+
+        private Mesh GetWireMeshCached(Mesh sourceMesh)
+        {
+            var sourceMeshId = sourceMesh.GetInstanceID();
+
+            if (meshCacheIndicesById.TryGetValue(sourceMeshId, out DataToken cacheIndex))
+            {
+                return cachedMeshes[cacheIndex.Int];
+            }
+
+            var wireMesh = GetWireMeshUncached(sourceMesh);
+
+            var removedMesh = cachedMeshes[cachedMeshIndex];
+            if (removedMesh)
+            {
+                meshCacheIndicesById.Remove(removedMesh.GetInstanceID());
+            }
+
+            meshCacheIndicesById.Add(sourceMeshId, cachedMeshIndex);
+            cachedMeshes[cachedMeshIndex] = wireMesh;
+            cachedMeshIndex = (cachedMeshIndex + 1) % cachedMeshes.Length;
+
+            return wireMesh;
+        }
+#endif // UNITY_ANDROID
 
         private void Start()
         {
@@ -111,6 +227,7 @@ namespace OrchidSeal.ParaDraw
             {
                 meshFilters[i] = meshObjects[i].GetComponentInChildren<MeshFilter>();
                 meshRenderers[i] = meshObjects[i].GetComponentInChildren<MeshRenderer>();
+                propertyBlocks[i] = new MaterialPropertyBlock();
             }
         }
 

@@ -21,9 +21,9 @@ namespace OrchidSeal.ParaDraw.Sample
             var arcAxis = new Vector3(1.0f, 1.0f, 0.0f);
             var arcRotation = Quaternion.LookRotation(arcAxis);
             var arcRight = arcRotation * arcAxis;
-            shapeDrawer.DrawWireCircle(p, arcAxis, 0.1f, Color.white);
+            shapeDrawer.DrawCircle(p, arcAxis, 0.1f, Color.white);
             shapeDrawer.DrawArc(p, arcRight, arcAxis, 0.11f, angle, angle + 60.0f, Color.red, 0.02f);
-            shapeDrawer.DrawWireEllipse(p, arcRight, arcAxis, new Vector2(0.2f, 0.5f), Color.white);
+            shapeDrawer.DrawEllipse(p, arcRight, arcAxis, new Vector2(0.2f, 0.5f), Color.white);
             shapeDrawer.DrawEllipticArc(p, arcRight, arcAxis, new Vector2(0.21f, 0.51f), angle, angle + 60.0f, Color.red, 0.03f);
             p += Vector3.right;
 

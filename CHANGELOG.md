@@ -1,6 +1,21 @@
 # Changelog
 
+## v0.7.0
+
+Released June 26, 2024.
+
+- Fixes mesh drawing not being visible on Quest because geometry shaders are unsupported.
+- Fixes mesh drawing only showing the first submesh.
+- Adds DrawWireCamera.
+- Added a version of DrawAxes to specify a Transform component.
+- Renames DrawWireCircle to DrawCircle.
+- Renames DrawWireEllipse to DrawEllipse.
+- Adds DrawWireCylinder.
+- Adds DrawWireRectangle.
+
 ## v0.6.0
+
+Released June 20, 2024.
 
 - Fixes ShapeDrawer queueing up shapes when it's disabled, causing it to draw them all at once when it's enabled.
 - Makes points and text show through nearby surfaces.

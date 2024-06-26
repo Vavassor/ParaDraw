@@ -36,6 +36,16 @@ Add the ShapeDrawer as a variable to any script you want to debug. And call what
 
 Check out the [Wiki](https://github.com/Vavassor/ParaDraw/wiki) for more guides!
 
+## Frequently Asked Questions
+
+### Question
+
+Why do wireframe meshes looks broken on Quest?
+
+#### Answer
+
+Check the "Read/Write Enabled" option for the mesh in the [model import settings](https://docs.unity3d.com/Manual/FBXImporter-Model.html).
+
 ## License
 
 This project is licensed under the terms of the [MIT license](LICENSE.md).

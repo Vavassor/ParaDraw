@@ -10,63 +10,12 @@ namespace OrchidSeal.ParaDraw
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class ShapeDrawer : UdonSharpBehaviour
     {
-        public GameObject linePrefab;
-        public LineRenderer[] lineRenderers = new LineRenderer[16];
-        public GameObject linesGroup;
+        public LineDrawer lineDrawer;
         public MeshDrawer meshDrawer;
         public ParticleSystem pointSystem;
         public TextDrawer textDrawer;
 
         private ParticleSystem.EmitParams emitParams;
-        private float[] lineDurations = new float[16];
-        private int lineIndexEnd;
-        private GameObject[] lineObjects = new GameObject[16];
-
-        private readonly Vector3[] arrowheadVertices = new Vector3[]
-        {
-            new Vector3(-1.0f, -1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(-1.0f, -1.0f, -1.4142f),
-
-            new Vector3(1.0f, -1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(1.0f, -1.0f, -1.4142f),
-
-            new Vector3(1.0f, 1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(1.0f, 1.0f, -1.4142f),
-
-            new Vector3(-1.0f, 1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(-1.0f, 1.0f, -1.4142f),
-
-            new Vector3(-1.0f, -1.0f, -1.4142f),
-        };
-
-        private readonly Vector3[] boxVertices = new Vector3[]
-        {
-            new Vector3(-0.5f, -0.5f, -0.5f),
-            new Vector3(-0.5f, -0.5f, 0.5f),
-            new Vector3(0.5f, -0.5f, 0.5f),
-            new Vector3(0.5f, -0.5f, -0.5f),
-
-            new Vector3(-0.5f, -0.5f, -0.5f),
-            new Vector3(-0.5f, 0.5f, -0.5f),
-
-            new Vector3(-0.5f, 0.5f, 0.5f),
-            new Vector3(-0.5f, -0.5f, 0.5f),
-            new Vector3(-0.5f, 0.5f, 0.5f),
-
-            new Vector3(0.5f, 0.5f, 0.5f),
-            new Vector3(0.5f, -0.5f, 0.5f),
-            new Vector3(0.5f, 0.5f, 0.5f),
-
-            new Vector3(0.5f, 0.5f, -0.5f),
-            new Vector3(0.5f, -0.5f, -0.5f),
-            new Vector3(0.5f, 0.5f, -0.5f),
-
-            new Vector3(-0.5f, 0.5f, -0.5f),
-        };
 
         /// <summary>
         /// Draws a circular arc.
@@ -101,6 +50,46 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
+        /// Draws 3D axes representing a given transform.
+        /// </summary>
+        /// <param name="transform">The transform.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawAxes(Transform t, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            DrawAxes(t.position, t.rotation, t.lossyScale, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a wireframe circle.
+        /// </summary>
+        /// <param name="center">The circle center.</param>
+        /// <param name="axis">The axis of rotation.</param>
+        /// <param name="radius">The circle radius.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawCircle(Vector3 center, Vector3 axis, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            DrawEllipticArc(center, GetOrthogonalVector(axis), axis, Vector2.one * radius, 0.0f, 360.0f, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws an ellipse.
+        /// </summary>
+        /// <param name="center">The ellipse center.</param>
+        /// <param name="axisX">The axis parallel to the ellipse. </param>
+        /// <param name="axisY">The axis perpendicular to the ellipse.</param>
+        /// <param name="radii">The ellipse radii. X is the semi-major axis and Y is the semi-minor axis.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawEllipse(Vector3 center, Vector3 axisX, Vector3 axisY, Vector2 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            DrawEllipticArc(center, axisX, axisY, radii, 0.0f, 360.0f, color, lineWidth, duration);
+        }
+
+        /// <summary>
         /// Draws an elliptic arc.
         /// </summary>
         /// <param name="origin">The ellipse center.</param>
@@ -114,31 +103,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawEllipticArc(Vector3 origin, Vector3 axisX, Vector3 axisY, Vector2 radii, float startAngle, float endAngle, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            var positionCount = 33;
-            lineRenderer.positionCount = positionCount;
-
-            var arm = Vector3.zero;
-            var axisZ = Vector3.Cross(axisX, axisY);
-            var lookRotation = Quaternion.LookRotation(axisZ, axisY);
-            var turn = (endAngle - startAngle) * Mathf.Deg2Rad / (positionCount - 1);
-            var startTurn = startAngle * Mathf.Deg2Rad;
-
-            for (var i = 0; i < positionCount; i++)
-            {
-                var angle = turn * i + startTurn;
-                arm.x = Mathf.Cos(angle) * radii.x;
-                arm.z = Mathf.Sin(angle) * radii.y;
-                lineRenderer.SetPosition(i, lookRotation * arm + origin);
-            }
-
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
+            lineDrawer.DrawEllipticArc(origin, axisX, axisY, radii, startAngle, endAngle, 32, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -151,17 +116,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawLine(Vector3 start, Vector3 end, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, start);
-            lineRenderer.SetPosition(1, end);
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
+            lineDrawer.DrawLine(start, end, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -194,17 +149,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawPolyline(Vector3[] vertices, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            lineRenderer.positionCount = vertices.Length;
-            lineRenderer.SetPositions(vertices);
-
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
+            lineDrawer.DrawPolyline(vertices, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -219,21 +164,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawPolyline(Vector3[] vertices, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            lineRenderer.positionCount = vertices.Length;
-
-            for (var i = 0; i < vertices.Length; i++)
-            {
-                lineRenderer.SetPosition(i, rotation * Vector3.Scale(scale, vertices[i]) + position);
-            }
-
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
+            lineDrawer.DrawPolyline(vertices, position, rotation, scale, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -246,11 +177,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawRay(Vector3 origin, Vector3 direction, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var end = origin + direction;
-            DrawLine(origin, end, color, lineWidth, duration);
-
-            var arrowheadScale = (0.1f * Mathf.Min(direction.magnitude, 0.2f)) * Vector3.one;
-            DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction), arrowheadScale, color, lineWidth, duration);
+            lineDrawer.DrawRay(origin, direction, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -291,7 +218,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireBox(Vector3 center, Quaternion rotation, Vector3 size, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            DrawPolyline(boxVertices, center, rotation, size, color, lineWidth, duration);
+            lineDrawer.DrawWireBox(center, rotation, size, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -305,6 +232,19 @@ namespace OrchidSeal.ParaDraw
         {
             var colliderTransform = collider.transform;
             DrawWireBox(colliderTransform.TransformPoint(collider.center), colliderTransform.rotation, Vector3.Scale(colliderTransform.lossyScale, collider.size), color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a camera.
+        /// </summary>
+        /// <param name="camera">The camera.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
+        public void DrawWireCamera(Camera camera, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var t = camera.transform;
+            DrawWireFrustum(t.position, t.rotation, camera.fieldOfView, camera.nearClipPlane, camera.farClipPlane, camera.aspect, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -325,8 +265,8 @@ namespace OrchidSeal.ParaDraw
             axisX = radius * axisX.normalized;
             axisZ = radius * axisZ.normalized;
 
-            DrawWireCircle(start, axisY, radius, color, lineWidth, duration);
-            DrawWireCircle(end, axisY, radius, color, lineWidth, duration);
+            DrawCircle(start, axisY, radius, color, lineWidth, duration);
+            DrawCircle(end, axisY, radius, color, lineWidth, duration);
             DrawWireStadium(start, end, axisX, radius, color, lineWidth, duration);
             DrawWireStadium(start, end, axisZ, radius, color, lineWidth, duration);
         }
@@ -370,21 +310,9 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
-        /// Draws a wireframe circle.
-        /// </summary>
-        /// <param name="center">The circle center.</param>
-        /// <param name="axis">The axis of rotation.</param>
-        /// <param name="radius">The circle radius.</param>
-        /// <param name="color">The line color.</param>
-        /// <param name="lineWidth">The line width.</param>
-        /// <param name="duration">The number of seconds the line should be visible for.</param>
-        public void DrawWireCircle(Vector3 center, Vector3 axis, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
-        {
-            DrawEllipticArc(center, GetOrthogonalVector(axis), axis, Vector2.one * radius, 0.0f, 360.0f, color, lineWidth, duration);
-        }
-
-        /// <summary>
         /// Draws a wireframe collider.
+        /// 
+        /// Supports BoxCollider, CapsuleCollider, MeshCollider, and SphereCollider.
         /// </summary>
         /// <param name="collider">The collider.</param>
         /// <param name="color">The line color.</param>
@@ -435,18 +363,33 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
-        /// Draws a wireframe ellipse.
+        /// Draws a wireframe cylinder.
         /// </summary>
-        /// <param name="center">The ellipse center.</param>
-        /// <param name="axisX">The axis parallel to the ellipse. </param>
-        /// <param name="axisY">The axis perpendicular to the ellipse.</param>
-        /// <param name="radii">The ellipse radii. X is the semi-major axis and Y is the semi-minor axis.</param>
+        /// <param name="start">The center of the first base.</param>
+        /// <param name="end">The center of the second base.</param>
+        /// <param name="radius">The cylinder radius.</param>
         /// <param name="color">The line color.</param>
         /// <param name="lineWidth">The line width.</param>
         /// <param name="duration">The number of seconds the line should be visible for.</param>
-        public void DrawWireEllipse(Vector3 center, Vector3 axisX, Vector3 axisY, Vector2 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        public void DrawWireCylinder(Vector3 start, Vector3 end, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            DrawEllipticArc(center, axisX, axisY, radii, 0.0f, 360.0f, color, lineWidth, duration);
+            var axisY = end - start;
+            var axisX = GetOrthogonalVector(axisY);
+            var turn = 0.5f * Mathf.PI;
+            var arm = Vector3.zero;
+            var lookRotation = Quaternion.LookRotation(axisX, axisY);
+
+            for (var i = 0; i < 4; i++)
+            {
+                var angle = turn * i;
+                arm.x = Mathf.Cos(angle) * radius;
+                arm.z = Mathf.Sin(angle) * radius;
+                var direction = lookRotation * arm;
+                lineDrawer.DrawLine(direction + start, direction + end, color, lineWidth, duration);
+            }
+
+            DrawCircle(start, axisY, radius, color, lineWidth, duration);
+            DrawCircle(end, axisY, radius, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -481,9 +424,9 @@ namespace OrchidSeal.ParaDraw
             var x = axisX.magnitude;
             var y = axisY.magnitude;
             var z = axisZ.magnitude;
-            DrawWireEllipse(center, axisY, axisX, new Vector2(y, z), color, lineWidth, duration);
-            DrawWireEllipse(center, axisX, axisY, new Vector2(x, z), color, lineWidth, duration);
-            DrawWireEllipse(center, axisX, axisZ, new Vector2(x, y), color, lineWidth, duration);
+            DrawEllipse(center, axisY, axisX, new Vector2(y, z), color, lineWidth, duration);
+            DrawEllipse(center, axisX, axisY, new Vector2(x, z), color, lineWidth, duration);
+            DrawEllipse(center, axisX, axisZ, new Vector2(x, y), color, lineWidth, duration);
         }
 
         /// <summary>
@@ -498,33 +441,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireEllipticCone(Vector3 origin, Vector3 axisX, Vector3 axisY, Vector3 axisZ, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            var positionCount = 16;
-            lineRenderer.positionCount = positionCount;
-
-            var arm = Vector3.zero;
-            var lookRotation = Quaternion.LookRotation(axisZ, axisY);
-            var radii = new Vector2(axisX.magnitude, axisZ.magnitude);
-            var turn = 2.0f * Mathf.PI / positionCount;
-
-            for (var i = 0; i < positionCount; i += 2)
-            {
-                var angle = turn * i;
-                arm.x = Mathf.Cos(angle) * radii.x;
-                arm.z = Mathf.Sin(angle) * radii.y;
-                lineRenderer.SetPosition(i, origin);
-                lineRenderer.SetPosition(i + 1, lookRotation * arm + axisY + origin);
-            }
-
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
-
-            DrawWireEllipse(origin + axisY, axisX, axisY, radii, color, lineWidth, duration);
+            lineDrawer.DrawWireEllipticCone(origin, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -561,62 +478,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireFrustum(Vector3 origin, Quaternion rotation, float verticalFieldOfView, float nearPlane, float farPlane, float aspectRatio, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            var positionCount = 16;
-            lineRenderer.positionCount = positionCount;
-
-            float tanY = Mathf.Tan(Mathf.Deg2Rad * verticalFieldOfView / 2.0f);
-            float nearExtentY = tanY * nearPlane;
-            float nearExtentX = nearExtentY * aspectRatio;
-
-            float farExtentY = tanY * farPlane;
-            float farExtentX = farExtentY * aspectRatio;
-
-            var right = rotation * Vector3.right;
-            var up = rotation * Vector3.up;
-            var forward = rotation * Vector3.forward;
-
-            Vector3 fc = farPlane * forward + origin;
-            Vector3 nc = nearPlane * forward + origin;
-
-            var c0 = fc + (up * farExtentY) - (right * farExtentX);
-            var c1 = fc + (up * farExtentY) + (right * farExtentX);
-            var c2 = fc - (up * farExtentY) - (right * farExtentX);
-            var c3 = fc - (up * farExtentY) + (right * farExtentX);
-
-            var c4 = nc + (up * nearExtentY) - (right * nearExtentX);
-            var c5 = nc + (up * nearExtentY) + (right * nearExtentX);
-            var c6 = nc - (up * nearExtentY) - (right * nearExtentX);
-            var c7 = nc - (up * nearExtentY) + (right * nearExtentX);
-
-            lineRenderer.SetPosition(0, c0);
-            lineRenderer.SetPosition(1, c1);
-            lineRenderer.SetPosition(2, c3);
-            lineRenderer.SetPosition(3, c2);
-            lineRenderer.SetPosition(4, c0);
-
-            lineRenderer.SetPosition(5, c4);
-            lineRenderer.SetPosition(6, c5);
-            lineRenderer.SetPosition(7, c1);
-            lineRenderer.SetPosition(8, c5);
-
-            lineRenderer.SetPosition(9, c7);
-            lineRenderer.SetPosition(10, c3);
-            lineRenderer.SetPosition(11, c7);
-
-            lineRenderer.SetPosition(12, c6);
-            lineRenderer.SetPosition(13, c2);
-            lineRenderer.SetPosition(14, c6);
-
-            lineRenderer.SetPosition(15, c4);
-
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
+            lineDrawer.DrawWireFrustum(origin, rotation, verticalFieldOfView, nearPlane, farPlane, aspectRatio, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -644,6 +506,34 @@ namespace OrchidSeal.ParaDraw
         {
             var colliderTransform = collider.transform;
             meshDrawer.DrawWireMesh(collider.sharedMesh, colliderTransform.position, colliderTransform.rotation, colliderTransform.lossyScale, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a wireframe rectangle.
+        /// </summary>
+        /// <param name="center">The rectangle center.</param>
+        /// <param name="axis">The axis perpendicular to the rectangle.</param>
+        /// <param name="size">The rectangle side lengths.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the mesh should be visible for.</param>
+        public void DrawWireRectangle(Vector3 center, Vector3 axis, Vector2 size, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            lineDrawer.DrawWireRectangle(center, Quaternion.LookRotation(axis), size, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a wireframe rectangle.
+        /// </summary>
+        /// <param name="center">The rectangle center.</param>
+        /// <param name="rotation">The rectangle rotation.</param>
+        /// <param name="size">The rectangle side lengths.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the mesh should be visible for.</param>
+        public void DrawWireRectangle(Vector3 center, Quaternion rotation, Vector2 size, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            lineDrawer.DrawWireRectangle(center, rotation, size, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -687,104 +577,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireStadium(Vector3 start, Vector3 end, Vector3 normal, float radius, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var lineRenderer = AllocateLineRenderer();
-
-            if (lineRenderer == null)
-            {
-                return;
-            }
-
-            var capPositionCount = 17;
-            var positionCount = 35;
-            lineRenderer.positionCount = positionCount;
-
-            var arm = new Vector3(radius, 0.0f, 0.0f);
-            var lookRotation = Quaternion.LookRotation(end - start, normal);
-            var startPoint = lookRotation * arm + end;
-            lineRenderer.SetPosition(0, startPoint);
-
-            var turn = 2.0f * Mathf.PI / (positionCount - 3);
-
-            for (var i = 1; i < capPositionCount; i++)
-            {
-                var angle = turn * i;
-                arm.x = Mathf.Cos(angle) * radius;
-                arm.z = Mathf.Sin(angle) * radius;
-                lineRenderer.SetPosition(i, lookRotation * arm + end);
-            }
-
-            for (var i = capPositionCount; i < positionCount - 1; i++)
-            {
-                var angle = turn * (i - 1);
-                arm.x = Mathf.Cos(angle) * radius;
-                arm.z = Mathf.Sin(angle) * radius;
-                lineRenderer.SetPosition(i, lookRotation * arm + start);
-            }
-
-            lineRenderer.SetPosition(positionCount - 1, startPoint);
-
-            EnableLineRenderer(lineRenderer, color, lineWidth, duration);
-        }
-
-        private LineRenderer AllocateLineRenderer()
-        {
-            if (!gameObject.activeInHierarchy)
-            {
-                return null;
-            }
-
-            if (lineIndexEnd > lineRenderers.Length - 1)
-            {
-                var lineCount = lineRenderers.Length;
-                var newLineCount = 2 * lineCount;
-                var newLineDurations = new float[newLineCount];
-                var newLineObjects = new GameObject[newLineCount];
-                var newLineRenderers = new LineRenderer[newLineCount];
-                System.Array.Copy(lineDurations, newLineDurations, lineCount);
-                System.Array.Copy(lineObjects, newLineObjects, lineCount);
-                System.Array.Copy(lineRenderers, newLineRenderers, lineCount);
-
-                for (var i = lineCount; i < newLineCount; i++)
-                {
-                    newLineObjects[i] = Instantiate(linePrefab, linesGroup.transform);
-                    newLineRenderers[i] = newLineObjects[i].GetComponent<LineRenderer>();
-                }
-
-                lineDurations = newLineDurations;
-                lineObjects = newLineObjects;
-                lineRenderers = newLineRenderers;
-            }
-
-            return lineRenderers[lineIndexEnd];
-        }
-
-        private void DeallocateLineRenderer(int index)
-        {
-            var lastLineIndex = lineIndexEnd - 1;
-
-            lineRenderers[index].enabled = false;
-            lineIndexEnd -= 1;
-
-            if (index == lastLineIndex)
-            {
-                return;
-            }
-
-            lineDurations[index] = lineDurations[lastLineIndex];
-
-            var tempRenderer = lineRenderers[index];
-            lineRenderers[index] = lineRenderers[lastLineIndex];
-            lineRenderers[lastLineIndex] = tempRenderer;
-        }
-
-        private void EnableLineRenderer(LineRenderer lineRenderer, Color color, float lineWidth, float duration)
-        {
-            lineRenderer.widthMultiplier = lineWidth;
-            lineRenderer.endColor = color;
-            lineRenderer.startColor = color;
-            lineRenderer.enabled = true;
-            lineDurations[lineIndexEnd] = duration;
-            lineIndexEnd += 1;
+            lineDrawer.DrawWireStadium(start, end, normal, radius, color, lineWidth, duration);
         }
 
         /// <summary>
@@ -828,25 +621,6 @@ namespace OrchidSeal.ParaDraw
             {
                 float x = v.z < 0.0f ? -1.0f : 1.0f;
                 return new Vector3(x, 0.0f, 0.0f);
-            }
-        }
-
-        private void Update()
-        {
-            var i = 0;
-
-            while (i < lineIndexEnd)
-            {
-                lineDurations[i] -= Time.deltaTime;
-
-                if (lineDurations[i] <= 0.0f)
-                {
-                    DeallocateLineRenderer(i);
-                }
-                else
-                {
-                    i++;
-                }
             }
         }
     }

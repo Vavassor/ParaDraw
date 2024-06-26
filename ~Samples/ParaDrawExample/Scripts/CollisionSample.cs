@@ -8,9 +8,11 @@ namespace OrchidSeal.ParaDraw.Sample
     {
         public LayerMask raycastLayerMask = (1 << 17); // layer 17 is Walkthrough
         public ShapeDrawer shapeDrawer;
-        
+
         private void Update()
         {
+            shapeDrawer.DrawText("Line of sight", transform.position + new Vector3(0.0f, 0.3f, 0.352f), Color.white);
+            
             var p = transform.position + new Vector3(0.0f, 1.0f, -0.5f);
 
             // Rotate the ray around the surface of a cone.
