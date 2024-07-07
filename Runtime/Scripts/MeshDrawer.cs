@@ -11,7 +11,7 @@ namespace OrchidSeal.ParaDraw
     /// Draw meshes in 3D space.
     /// </summary>
     [DefaultExecutionOrder(-1)]
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class MeshDrawer : UdonSharpBehaviour
     {
         public GameObject[] meshObjects = new GameObject[4];
