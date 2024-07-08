@@ -7,7 +7,7 @@ namespace OrchidSeal.ParaDraw
     /// Draw shapes in 3D space.
     /// </summary>
     [DefaultExecutionOrder(-1)]
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class ShapeDrawer : UdonSharpBehaviour
     {
         public LineDrawer lineDrawer;
