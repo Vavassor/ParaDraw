@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using System;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 
@@ -15,6 +16,8 @@ namespace OrchidSeal.ParaDraw
         public LineRenderer[] lineRenderers = new LineRenderer[16];
         public GameObject linesGroup;
 
+        private VRCPlayerApi _localPlayer;
+        
         private float[] lineDurations = new float[16];
         private int lineIndexEnd;
         private Material[] lineMaterials = new Material[16];
@@ -63,6 +66,11 @@ namespace OrchidSeal.ParaDraw
 
             new Vector3(-0.5f, -0.5f, 0.0f),
         };
+
+        private void Start()
+        {
+            _localPlayer = Networking.LocalPlayer;
+        }
 
         public void DrawEllipse(Vector3 center, Vector3 axisX, Vector3 axisY, Vector2 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
@@ -154,7 +162,8 @@ namespace OrchidSeal.ParaDraw
             var end = origin + direction;
             DrawLine(origin, end - direction.normalized * (arrowheadScale * 1.4142f), color, lineWidth, duration);
 
-            var headPos = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
+            var headData = _localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            var headPos = headData.position;
             var right = Vector3.Cross(direction, headPos - end).normalized;
             var forward = Vector3.Cross(right, direction).normalized;
             DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction, forward), arrowheadScale * Vector3.one, color, lineWidth, duration);
