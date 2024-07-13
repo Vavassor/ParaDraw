@@ -1,5 +1,7 @@
-﻿using UdonSharp;
+﻿using System;
+using UdonSharp;
 using UnityEngine;
+using VRC.SDKBase;
 
 namespace OrchidSeal.ParaDraw
 {
@@ -14,6 +16,8 @@ namespace OrchidSeal.ParaDraw
         public LineRenderer[] lineRenderers = new LineRenderer[16];
         public GameObject linesGroup;
 
+        private VRCPlayerApi _localPlayer;
+        
         private float[] lineDurations = new float[16];
         private int lineIndexEnd;
         private Material[] lineMaterials = new Material[16];
@@ -21,23 +25,11 @@ namespace OrchidSeal.ParaDraw
 
         private readonly Vector3[] arrowheadVertices = new Vector3[]
         {
-            new Vector3(-1.0f, -1.0f, -1.4142f),
+            new Vector3(0.0f, 0.0f, -1.4142f),
+            new Vector3(-1.0f, 0.0f, -1.4142f),
             new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(-1.0f, -1.0f, -1.4142f),
-
-            new Vector3(1.0f, -1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(1.0f, -1.0f, -1.4142f),
-
-            new Vector3(1.0f, 1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(1.0f, 1.0f, -1.4142f),
-
-            new Vector3(-1.0f, 1.0f, -1.4142f),
-            new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(-1.0f, 1.0f, -1.4142f),
-
-            new Vector3(-1.0f, -1.0f, -1.4142f),
+            new Vector3(1.0f, 0.0f, -1.4142f),
+            new Vector3(0.0f, 0.0f, -1.4142f),
         };
 
         private readonly Vector3[] boxVertices = new Vector3[]
@@ -74,6 +66,11 @@ namespace OrchidSeal.ParaDraw
 
             new Vector3(-0.5f, -0.5f, 0.0f),
         };
+
+        private void Start()
+        {
+            _localPlayer = Networking.LocalPlayer;
+        }
 
         public void DrawEllipse(Vector3 center, Vector3 axisX, Vector3 axisY, Vector2 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
@@ -160,11 +157,16 @@ namespace OrchidSeal.ParaDraw
 
         public void DrawRay(Vector3 origin, Vector3 direction, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var end = origin + direction;
-            DrawLine(origin, end, color, lineWidth, duration);
+            var arrowheadScale = 0.1f * Mathf.Min(direction.magnitude, 0.2f);
 
-            var arrowheadScale = (0.1f * Mathf.Min(direction.magnitude, 0.2f)) * Vector3.one;
-            DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction), arrowheadScale, color, lineWidth, duration);
+            var end = origin + direction;
+            DrawLine(origin, end - direction.normalized * (arrowheadScale * 1.4142f), color, lineWidth, duration);
+
+            var headData = _localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            var headPos = headData.position;
+            var right = Vector3.Cross(direction, headPos - end).normalized;
+            var forward = Vector3.Cross(right, direction).normalized;
+            DrawPolyline(arrowheadVertices, end, Quaternion.LookRotation(direction, forward), arrowheadScale * Vector3.one, color, lineWidth, duration);
         }
 
         public void DrawWireBox(Vector3 center, Quaternion rotation, Vector3 size, Color color, float lineWidth = 0.005f, float duration = 0.0f)
