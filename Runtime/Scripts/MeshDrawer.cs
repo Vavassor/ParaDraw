@@ -62,20 +62,6 @@ namespace OrchidSeal.ParaDraw
             EnableMesh(meshRenderer, propertyBlock, center, rotation, Vector3.one, color, duration);
         }
 
-        public void DrawSolidGrid(Vector3 position, Quaternion rotation, Vector2 size, Vector2Int tiles, Color color, float duration = 0.0f)
-        {
-            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
-
-            if (!meshFilter)
-            {
-                return;
-            }
-
-            MeshGeneration.CreateGrid(meshFilter.mesh, size, tiles.x, tiles.y, Vector2.one, Vector2.zero);
-            propertyBlock.SetColor("_SurfaceColor", color);
-            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, color, duration);
-        }
-
         public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
         {
             AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
@@ -113,7 +99,7 @@ namespace OrchidSeal.ParaDraw
                 return;
             }
 
-            MeshGeneration.CreateEllipsoid(meshFilter.mesh, radius * Vector3.one, 8, 8, Vector2.one, Vector2.zero);
+            EllipsoidGeneration.CreateEllipsoid(meshFilter.mesh, radius * Vector3.one, 8, 8, Vector2.one, Vector2.zero);
             propertyBlock.SetColor("_SurfaceColor", color);
             EnableMesh(meshRenderer, propertyBlock, center, Quaternion.identity, Vector3.one, color, duration);
         }

@@ -1,6 +1,6 @@
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "TextMeshPro/Distance Field-BillboardFacing"
+Shader "Orchid Seal/ParaDraw/Distance Field-BillboardFacing"
 {
 	// Billboarding version for TextMeshPro (tested in 2018.3), based on default Distance Field shader. 
 	// ** Important part is to DISABLE the dynamic batching! (happens in this shader) **

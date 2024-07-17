@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UdonSharp;
 
 namespace OrchidSeal.ParaDraw.Sample
@@ -6,6 +6,7 @@ namespace OrchidSeal.ParaDraw.Sample
     public class DynamicSample : UdonSharpBehaviour
     {
         public ShapeDrawer shapeDrawer;
+        public MeshCollider bottleMesh;
 
         private void Update()
         {
@@ -69,6 +70,21 @@ namespace OrchidSeal.ParaDraw.Sample
             p += Vector3.right;
 
             shapeDrawer.DrawText("frame time\n" + (100.0f * Time.unscaledDeltaTime).ToString("n3") + " ms", p, Color.cyan);
+            p += 2.0f * Vector3.forward;
+
+            shapeDrawer.DrawSolidRectangle(p, Quaternion.identity, 0.4f * Vector2.one, Color.red);
+            p += Vector3.left;
+
+            shapeDrawer.DrawSolidSphere(p, 0.5f, Color.green);
+            p += Vector3.left;
+
+            shapeDrawer.DrawSolidBox(p, Quaternion.identity, new Vector3(0.4f, 0.2f, 0.8f), new Color(1.0f, 0.0f, 1.0f, 0.04f));
+            p += Vector3.left;
+
+            shapeDrawer.DrawSolidMeshCollider(bottleMesh, new Color(0.0f, 0.0f, 1.0f, 0.13f));
+            p += Vector3.left;
+
+            shapeDrawer.DrawSolidCapsule(p, p + new Vector3(0.3f, 0.2f, -0.4f), 0.1f, Color.white);
         }
 
         private float Wave(float min, float max, float t)

@@ -252,11 +252,6 @@ namespace OrchidSeal.ParaDraw
             }
         }
 
-        public void DrawSolidGrid(Vector3 position, Quaternion rotation, Vector2 size, Vector2Int tiles, Color color, float duration = 0.0f)
-        {
-            meshDrawer.DrawSolidGrid(position, rotation, size, tiles, color, duration);
-        }
-
         public void DrawSolidMeshCollider(MeshCollider collider, Color color, float duration = 0.0f)
         {
             var t = collider.transform;

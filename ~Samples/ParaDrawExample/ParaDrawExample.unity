@@ -153,7 +153,8 @@ Transform:
   m_LocalPosition: {x: -4, y: 1, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 664660759}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &109214075
@@ -205,6 +206,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 109214075}
   shapeDrawer: {fileID: 1030140034}
+  bottleMesh: {fileID: 664660760}
 --- !u!1 &270699201
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,6 +643,60 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 492648216}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &664660758
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 664660759}
+  - component: {fileID: 664660760}
+  m_Layer: 17
+  m_Name: Bottle Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &664660759
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664660758}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.4629881, y: 0.43875456, z: 0.07631493, w: 0.7663632}
+  m_LocalPosition: {x: 1.08, y: -0.053, z: 6.311}
+  m_LocalScale: {x: 1.2800001, y: 1.2799999, z: 1.28}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 109214074}
+  m_LocalEulerAnglesHint: {x: -50.95, y: 72.802, z: -27.337}
+--- !u!64 &664660760
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664660758}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -803132054772676108, guid: 6bcd885397054854597d0007f1f1f1fa, type: 3}
 --- !u!1 &701404066
 GameObject:
   m_ObjectHideFlags: 0
@@ -3106,6 +3162,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4891025647709430977, guid: bb68472a2e9f8a64889674553ce6edc0,
         type: 3}
+    - target: {fileID: 5065096494542313133, guid: bb68472a2e9f8a64889674553ce6edc0,
+        type: 3}
+      propertyPath: _syncMethod
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5423609721589368526, guid: bb68472a2e9f8a64889674553ce6edc0,
         type: 3}
       propertyPath: serializationData.Prefab
@@ -3150,6 +3211,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 9098069128081415172, guid: bb68472a2e9f8a64889674553ce6edc0,
         type: 3}
+    - target: {fileID: 9142051976429608569, guid: bb68472a2e9f8a64889674553ce6edc0,
+        type: 3}
+      propertyPath: _syncMethod
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
