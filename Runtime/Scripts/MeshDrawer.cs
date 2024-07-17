@@ -22,6 +22,13 @@ namespace OrchidSeal.ParaDraw
         public Material solidTransparentMaterial;
         public Material wireMaterial;
 
+        [Header("Base Meshes")]
+        public Mesh boxMesh;
+        public Mesh capsuleCapMesh;
+        public Mesh capsuleCylinderMesh;
+        public Mesh rectangleMesh;
+        public Mesh sphereMesh;
+
 #if UNITY_ANDROID
         private int cachedMeshIndex;
         private readonly Mesh[] cachedMeshes = new Mesh[16];
@@ -36,32 +43,16 @@ namespace OrchidSeal.ParaDraw
 
         public void DrawSolidBox(Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
         {
-            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
-
-            if (!meshFilter)
-            {
-                return;
-            }
-
-            BoxGeneration.CreateBox(meshFilter.mesh, size, Vector2.one, Vector2.zero);
-            propertyBlock.SetColor("_SurfaceColor", color);
-            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
-            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, material, duration);
+            DrawSolidMesh(boxMesh, position, rotation, size, color, duration);
         }
 
         public void DrawSolidCapsule(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0.0f)
         {
-            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
-
-            if (!meshFilter)
-            {
-                return;
-            }
-
-            CapsuleGeneration.CreateCapsuleYAxis(meshFilter.mesh, radius, height, 8, 4, Vector2.one, Vector2.zero);
-            propertyBlock.SetColor("_SurfaceColor", color);
-            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
-            EnableMesh(meshRenderer, propertyBlock, center, rotation, Vector3.one, material, duration);
+            var extentY = 0.5f * height * (rotation * Vector3.up);
+            var scale = radius * Vector3.one;
+            DrawSolidMesh(capsuleCapMesh, center + extentY, rotation, scale, color, duration);
+            DrawSolidMesh(capsuleCylinderMesh, center, rotation, new Vector3(radius, 0.5f * height, radius), color, duration);
+            DrawSolidMesh(capsuleCapMesh, center - extentY, rotation * Quaternion.Euler(180.0f, 0.0f, 0.0f), scale, color, duration);
         }
 
         public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
@@ -73,7 +64,7 @@ namespace OrchidSeal.ParaDraw
                 return;
             }
 
-            meshFilter.mesh = mesh;
+            meshFilter.sharedMesh = mesh;
             propertyBlock.SetColor("_SurfaceColor", color);
             var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
             EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, material, duration);
@@ -81,32 +72,12 @@ namespace OrchidSeal.ParaDraw
 
         public void DrawSolidRectangle(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
         {
-            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
-
-            if (!meshFilter)
-            {
-                return;
-            }
-
-            RectangleGeneration.CreateRectangleTwoSided(meshFilter.mesh, size, Vector2.one, Vector2.zero);
-            propertyBlock.SetColor("_SurfaceColor", color);
-            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
-            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, material, duration);
+            DrawSolidMesh(rectangleMesh, position, rotation, new Vector3(size.x, size.y, 1.0f), color, duration);
         }
 
         public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
         {
-            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
-
-            if (!meshFilter)
-            {
-                return;
-            }
-
-            EllipsoidGeneration.CreateEllipsoid(meshFilter.mesh, radius * Vector3.one, 8, 8, Vector2.one, Vector2.zero);
-            propertyBlock.SetColor("_SurfaceColor", color);
-            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
-            EnableMesh(meshRenderer, propertyBlock, center, Quaternion.identity, Vector3.one, material, duration);
+            DrawSolidMesh(sphereMesh, center, Quaternion.identity, radius * Vector3.one, color, duration);
         }
 
         public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)

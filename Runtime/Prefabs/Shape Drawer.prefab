@@ -5133,6 +5133,16 @@ MonoBehaviour:
   solidTransparentMaterial: {fileID: 2100000, guid: 0cb34f0007b217b44a992524edc8063e,
     type: 2}
   wireMaterial: {fileID: 2100000, guid: 288f3c379598df749b35aa1d028b951f, type: 2}
+  boxMesh: {fileID: -5495902117074765545, guid: e30d221afb0bb0349a5166ed85a877ee,
+    type: 3}
+  capsuleCapMesh: {fileID: -6899452363964872037, guid: 88d6c3682f1bdda488f0a11d31357963,
+    type: 3}
+  capsuleCylinderMesh: {fileID: -5970591049418575310, guid: b25990a4d5c7e214eb47441ce28e4498,
+    type: 3}
+  rectangleMesh: {fileID: 5869761508291144630, guid: dcbe8cde847ab0242b30d99dd87bfb8d,
+    type: 3}
+  sphereMesh: {fileID: 4711208715938537054, guid: 7f1d226c86f410048b1684f54ba7888c,
+    type: 3}
 --- !u!114 &9142051976429608569
 MonoBehaviour:
   m_ObjectHideFlags: 0
