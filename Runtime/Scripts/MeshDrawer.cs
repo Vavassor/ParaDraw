@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 
 #if UNITY_ANDROID
@@ -18,6 +18,9 @@ namespace OrchidSeal.ParaDraw
         public GameObject meshPrefab;
         public GameObject meshesGroup;
         public Material androidWireMaterial;
+        public Material solidOpaqueMaterial;
+        public Material solidTransparentMaterial;
+        public Material wireMaterial;
 
 #if UNITY_ANDROID
         private int cachedMeshIndex;
@@ -30,6 +33,90 @@ namespace OrchidSeal.ParaDraw
         private MeshFilter[] meshFilters = new MeshFilter[4];
         private MeshRenderer[] meshRenderers = new MeshRenderer[4];
         private MaterialPropertyBlock[] propertyBlocks = new MaterialPropertyBlock[4];
+
+        public void DrawSolidBox(Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            BoxGeneration.CreateBox(meshFilter.mesh, size, Vector2.one, Vector2.zero);
+            propertyBlock.SetColor("_SurfaceColor", color);
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, color, duration);
+        }
+
+        public void DrawSolidCapsule(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            CapsuleGeneration.CreateCapsuleYAxis(meshFilter.mesh, radius, height, 8, 4, Vector2.one, Vector2.zero);
+            propertyBlock.SetColor("_SurfaceColor", color);
+            EnableMesh(meshRenderer, propertyBlock, center, rotation, Vector3.one, color, duration);
+        }
+
+        public void DrawSolidGrid(Vector3 position, Quaternion rotation, Vector2 size, Vector2Int tiles, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            MeshGeneration.CreateGrid(meshFilter.mesh, size, tiles.x, tiles.y, Vector2.one, Vector2.zero);
+            propertyBlock.SetColor("_SurfaceColor", color);
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, color, duration);
+        }
+
+        public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            meshFilter.mesh = mesh;
+            propertyBlock.SetColor("_SurfaceColor", color);
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, color, duration);
+        }
+
+        public void DrawSolidRectangle(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            RectangleGeneration.CreateRectangle(meshFilter.mesh, size, Vector2.one, Vector2.zero);
+            propertyBlock.SetColor("_SurfaceColor", color);
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, color, duration);
+        }
+
+        public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            MeshGeneration.CreateEllipsoid(meshFilter.mesh, radius * Vector3.one, 8, 8, Vector2.one, Vector2.zero);
+            propertyBlock.SetColor("_SurfaceColor", color);
+            EnableMesh(meshRenderer, propertyBlock, center, Quaternion.identity, Vector3.one, color, duration);
+        }
 
         public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)
         {
@@ -78,10 +165,34 @@ namespace OrchidSeal.ParaDraw
 
             propertyBlock.SetColor("_WireColor", color);
             propertyBlock.SetFloat("_WireThickness", lineWidth * 20000.0f);
+            SetMaterial(meshRenderer, wireMaterial);
             meshRenderer.SetPropertyBlock(propertyBlock);
             meshRenderer.enabled = true;
             meshObject.transform.SetPositionAndRotation(position, rotation);
             meshObject.transform.localScale = scale;
+            meshDurations[meshIndexEnd] = duration;
+            meshIndexEnd += 1;
+        }
+
+        private void SetMaterial(MeshRenderer meshRenderer, Material material)
+        {
+            var materials = meshRenderer.materials;
+
+            for (var i = 0; i < materials.Length; i++)
+            {
+                materials[i] = material;
+            }
+
+            meshRenderer.materials = materials;
+        }
+
+        private void EnableMesh(MeshRenderer meshRenderer, MaterialPropertyBlock propertyBlock, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration)
+        {
+            meshRenderer.SetPropertyBlock(propertyBlock);
+            SetMaterial(meshRenderer, color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial);
+            meshRenderer.enabled = true;
+            meshObjects[meshIndexEnd].transform.SetPositionAndRotation(position, rotation);
+            meshObjects[meshIndexEnd].transform.localScale = scale;
             meshDurations[meshIndexEnd] = duration;
             meshIndexEnd += 1;
         }

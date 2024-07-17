@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 
 namespace OrchidSeal.ParaDraw
@@ -178,6 +178,108 @@ namespace OrchidSeal.ParaDraw
         public void DrawRay(Vector3 origin, Vector3 direction, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             lineDrawer.DrawRay(origin, direction, color, lineWidth, duration);
+        }
+
+        public void DrawSolidBox(Vector3 center, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidBox(center, rotation, size, color, duration);
+        }
+
+        public void DrawSolidBoxCollider(BoxCollider collider, Color color, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            DrawSolidBox(colliderTransform.TransformPoint(collider.center), colliderTransform.rotation, Vector3.Scale(colliderTransform.lossyScale, collider.size), color, duration);
+        }
+
+        public void DrawSolidCapsule(Vector3 start, Vector3 end, float radius, Color color, float duration = 0.0f)
+        {
+            var direction = end - start;
+            meshDrawer.DrawSolidCapsule(0.5f * (start + end), Quaternion.LookRotation(Vector3.forward, direction), direction.magnitude, radius, color, duration);
+        }
+
+        public void DrawSolidCapsuleCollider(CapsuleCollider collider, Color color, float duration = 0.0f)
+        {
+            Vector3 axis;
+            float radius;
+            float height;
+            var colliderTransform = collider.transform;
+            var lossyScale = colliderTransform.lossyScale;
+            var unscaledHeight = Mathf.Max(collider.height - 2.0f * collider.radius, 0.0001f);
+
+            switch (collider.direction)
+            {
+                default:
+                case 0:
+                    radius = Mathf.Max(lossyScale.y, lossyScale.z) * collider.radius;
+                    height = unscaledHeight * lossyScale.x;
+                    axis = colliderTransform.TransformDirection(Vector3.right);
+                    break;
+                case 1:
+                    radius = Mathf.Max(lossyScale.x, lossyScale.z) * collider.radius;
+                    height = unscaledHeight * lossyScale.y;
+                    axis = colliderTransform.TransformDirection(Vector3.up);
+                    break;
+                case 2:
+                    radius = Mathf.Max(lossyScale.x, lossyScale.y) * collider.radius;
+                    height = unscaledHeight * lossyScale.z;
+                    axis = colliderTransform.TransformDirection(Vector3.forward);
+                    break;
+            }
+
+            var center = colliderTransform.TransformPoint(collider.center);
+            meshDrawer.DrawSolidCapsule(center, Quaternion.LookRotation(axis), height, radius, color, duration);
+        }
+
+        public void DrawSolidCollider(Collider collider, Color color, float duration = 0.0f)
+        {
+            var foundType = collider.GetType();
+
+            if (foundType == typeof(BoxCollider))
+            {
+                DrawSolidBoxCollider((BoxCollider)collider, color, duration);
+            }
+            else if (foundType == typeof(CapsuleCollider))
+            {
+                DrawSolidCapsuleCollider((CapsuleCollider)collider, color, duration);
+            }
+            else if (foundType == typeof(MeshCollider))
+            {
+                DrawSolidMeshCollider((MeshCollider)collider, color, duration);
+            }
+            else if (foundType == typeof(SphereCollider))
+            {
+                DrawSolidSphereCollider((SphereCollider)collider, color, duration);
+            }
+        }
+
+        public void DrawSolidGrid(Vector3 position, Quaternion rotation, Vector2 size, Vector2Int tiles, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidGrid(position, rotation, size, tiles, color, duration);
+        }
+
+        public void DrawSolidMeshCollider(MeshCollider collider, Color color, float duration = 0.0f)
+        {
+            var t = collider.transform;
+            meshDrawer.DrawSolidMesh(collider.sharedMesh, t.position, t.rotation, t.lossyScale, color, duration);
+        }
+
+        public void DrawSolidRectangle(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidRectangle(position, rotation, size, color, duration);
+        }
+
+        public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidSphere(center, radius, color, duration);
+        }
+
+        public void DrawSolidSphereCollider(SphereCollider collider, Color color, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            var lossyScale = colliderTransform.lossyScale;
+            var center = colliderTransform.TransformPoint(collider.center);
+            var radius = collider.radius * Mathf.Max(lossyScale.x, lossyScale.y, lossyScale.z);
+            meshDrawer.DrawSolidSphere(center, radius, color, duration);
         }
 
         /// <summary>
