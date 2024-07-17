@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.0
+
+- Make the arrow head for DrawRay face the viewer. [PR#2](https://github.com/Vavassor/ParaDraw/pull/2)
+
 ## v0.7.0
 
 Released June 26, 2024.
