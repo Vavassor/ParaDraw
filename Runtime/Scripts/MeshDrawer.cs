@@ -88,7 +88,7 @@ namespace OrchidSeal.ParaDraw
                 return;
             }
 
-            RectangleGeneration.CreateRectangle(meshFilter.mesh, size, Vector2.one, Vector2.zero);
+            RectangleGeneration.CreateRectangleTwoSided(meshFilter.mesh, size, Vector2.one, Vector2.zero);
             propertyBlock.SetColor("_SurfaceColor", color);
             var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
             EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, material, duration);
