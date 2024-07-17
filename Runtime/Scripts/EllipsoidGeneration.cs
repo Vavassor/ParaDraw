@@ -3,7 +3,7 @@ using UnityEngine;
 public static class EllipsoidGeneration
 {
     /// <summary>
-    /// Add indices for a row of triangles that are pointing downward.
+    /// Add indices for a row of triangles that are connected by their top corners. ▽▽▽▽▽
     /// </summary>
     public static void AddSawtoothDownIndices(int[] triangles, int outTriangleBase, int inTriangleBase, int meridians)
     {
@@ -18,7 +18,7 @@ public static class EllipsoidGeneration
     }
 
     /// <summary>
-    /// Add indices for a row of triangles that are pointing upward.
+    /// Add indices for a row of triangles that are connected by their bottom corners. △△△△△
     /// </summary>
     public static void AddSawtoothUpIndices(int[] triangles, int outTriangleBase, int inTriangleBase, int meridians)
     {

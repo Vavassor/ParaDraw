@@ -45,7 +45,8 @@ namespace OrchidSeal.ParaDraw
 
             BoxGeneration.CreateBox(meshFilter.mesh, size, Vector2.one, Vector2.zero);
             propertyBlock.SetColor("_SurfaceColor", color);
-            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, color, duration);
+            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, material, duration);
         }
 
         public void DrawSolidCapsule(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0.0f)
@@ -59,7 +60,8 @@ namespace OrchidSeal.ParaDraw
 
             CapsuleGeneration.CreateCapsuleYAxis(meshFilter.mesh, radius, height, 8, 4, Vector2.one, Vector2.zero);
             propertyBlock.SetColor("_SurfaceColor", color);
-            EnableMesh(meshRenderer, propertyBlock, center, rotation, Vector3.one, color, duration);
+            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
+            EnableMesh(meshRenderer, propertyBlock, center, rotation, Vector3.one, material, duration);
         }
 
         public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
@@ -73,7 +75,8 @@ namespace OrchidSeal.ParaDraw
 
             meshFilter.mesh = mesh;
             propertyBlock.SetColor("_SurfaceColor", color);
-            EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, color, duration);
+            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, material, duration);
         }
 
         public void DrawSolidRectangle(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
@@ -87,7 +90,8 @@ namespace OrchidSeal.ParaDraw
 
             RectangleGeneration.CreateRectangle(meshFilter.mesh, size, Vector2.one, Vector2.zero);
             propertyBlock.SetColor("_SurfaceColor", color);
-            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, color, duration);
+            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, Vector3.one, material, duration);
         }
 
         public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
@@ -101,7 +105,8 @@ namespace OrchidSeal.ParaDraw
 
             EllipsoidGeneration.CreateEllipsoid(meshFilter.mesh, radius * Vector3.one, 8, 8, Vector2.one, Vector2.zero);
             propertyBlock.SetColor("_SurfaceColor", color);
-            EnableMesh(meshRenderer, propertyBlock, center, Quaternion.identity, Vector3.one, color, duration);
+            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
+            EnableMesh(meshRenderer, propertyBlock, center, Quaternion.identity, Vector3.one, material, duration);
         }
 
         public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)
@@ -151,16 +156,10 @@ namespace OrchidSeal.ParaDraw
 
             propertyBlock.SetColor("_WireColor", color);
             propertyBlock.SetFloat("_WireThickness", lineWidth * 20000.0f);
-            SetMaterial(meshRenderer, wireMaterial);
-            meshRenderer.SetPropertyBlock(propertyBlock);
-            meshRenderer.enabled = true;
-            meshObject.transform.SetPositionAndRotation(position, rotation);
-            meshObject.transform.localScale = scale;
-            meshDurations[meshIndexEnd] = duration;
-            meshIndexEnd += 1;
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, wireMaterial, duration);
         }
 
-        private void SetMaterial(MeshRenderer meshRenderer, Material material)
+        private void EnableMesh(MeshRenderer meshRenderer, MaterialPropertyBlock propertyBlock, Vector3 position, Quaternion rotation, Vector3 scale, Material material, float duration)
         {
             var materials = meshRenderer.materials;
 
@@ -170,12 +169,8 @@ namespace OrchidSeal.ParaDraw
             }
 
             meshRenderer.materials = materials;
-        }
 
-        private void EnableMesh(MeshRenderer meshRenderer, MaterialPropertyBlock propertyBlock, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration)
-        {
             meshRenderer.SetPropertyBlock(propertyBlock);
-            SetMaterial(meshRenderer, color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial);
             meshRenderer.enabled = true;
             meshObjects[meshIndexEnd].transform.SetPositionAndRotation(position, rotation);
             meshObjects[meshIndexEnd].transform.localScale = scale;
