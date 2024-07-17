@@ -7,6 +7,7 @@ Shader "Orchid Seal/ParaDraw/Fixed Lit Opaque"
         _FixedAmbientColor("Ambient Color", Color) = (0.5, 0.5, 0.5, 1.0)
         _FixedLightColor("Light Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _FixedLightDirection("Light Direction", Vector) = (-0.6929, -0.6929, -0.6929, 0.0)
+        _DepthOffset("Depth offset", Range(0, 0.001)) = 0.00001
     }
     SubShader
     {

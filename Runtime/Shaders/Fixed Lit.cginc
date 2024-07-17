@@ -26,16 +26,28 @@ float4 _MainTex_ST;
 uniform float4 _FixedAmbientColor;
 uniform float4 _FixedLightColor;
 uniform float3 _FixedLightDirection;
+float _DepthOffset;
 
 v2f vert (appdata v)
 {
     v2f o;
-    o.vertex = UnityObjectToClipPos(v.vertex);
+
+    float4 positionCs = UnityObjectToClipPos(v.vertex);
+
+#if defined(UNITY_REVERSED_Z)
+    positionCs.z += _DepthOffset * positionCs.w;
+#else
+    positionCs.z -= _DepthOffset * positionCs.w;
+#endif
+
+    o.vertex = positionCs;
     o.uv = TRANSFORM_TEX(v.uv, _MainTex);
     o.normal = normalize(mul(v.normal, unity_WorldToObject));
     o.lightDirection = -normalize(mul((float3x3) UNITY_MATRIX_I_V, _FixedLightDirection));
     // o.lightDirection = -_FixedLightDirection;
+
     UNITY_TRANSFER_FOG(o,o.vertex);
+
     return o;
 }
 
