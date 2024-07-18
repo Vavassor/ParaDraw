@@ -260,7 +260,6 @@ namespace OrchidSeal.ParaDraw
 
             if (dynamicMeshIndexEnd > dynamicMeshFilters.Length - 1)
             {
-                Debug.Log("Resizing dynamic mesh arrays!");
                 var meshCount = dynamicMeshFilters.Length;
                 var newMeshCount = Mathf.Max(2 * meshCount, 4);
                 var newMeshes = new Mesh[newMeshCount];
