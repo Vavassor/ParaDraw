@@ -75,9 +75,9 @@ namespace OrchidSeal.ParaDraw
             DrawSolidMesh(rectangleMesh, position, rotation, new Vector3(size.x, size.y, 1.0f), color, duration);
         }
 
-        public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
+        public void DrawSolidEllipsoid(Vector3 center, Quaternion rotation, Vector3 radii, Color color, float duration = 0.0f)
         {
-            DrawSolidMesh(sphereMesh, center, Quaternion.identity, radius * Vector3.one, color, duration);
+            DrawSolidMesh(sphereMesh, center, rotation, radii, color, duration);
         }
 
         public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)
@@ -122,7 +122,7 @@ namespace OrchidSeal.ParaDraw
                 meshRenderer.materials = materials;
             }
 #else
-            meshFilter.mesh = mesh;
+            meshFilter.sharedMesh = mesh;
 #endif // UNITY_ANDROID
 
             propertyBlock.SetColor("_WireColor", color);

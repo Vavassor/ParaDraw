@@ -289,6 +289,19 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
+        /// Draws a solid ellipsoid with a given rotation and lengths of semi-axes.
+        /// </summary>
+        /// <param name="center">The center point.</param>
+        /// <param name="rotation">The rotation.</param>
+        /// <param name="scale">The lengths of the semi-axes.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidEllipsoid(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidEllipsoid(center, rotation, scale, color, duration);
+        }
+
+        /// <summary>
         /// Draws a solid mesh with a given transform.
         /// </summary>
         /// <param name="position">The transform translation.</param>
@@ -348,7 +361,7 @@ namespace OrchidSeal.ParaDraw
         /// <param name="duration">The number of seconds the surface should be visible for.</param>
         public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
         {
-            meshDrawer.DrawSolidSphere(center, radius, color, duration);
+            meshDrawer.DrawSolidEllipsoid(center, Quaternion.identity, radius * Vector3.one, color, duration);
         }
 
         /// <summary>
@@ -363,7 +376,7 @@ namespace OrchidSeal.ParaDraw
             var lossyScale = colliderTransform.lossyScale;
             var center = colliderTransform.TransformPoint(collider.center);
             var radius = collider.radius * Mathf.Max(lossyScale.x, lossyScale.y, lossyScale.z);
-            meshDrawer.DrawSolidSphere(center, radius, color, duration);
+            meshDrawer.DrawSolidEllipsoid(center, Quaternion.identity, radius * Vector3.one, color, duration);
         }
 
         /// <summary>
