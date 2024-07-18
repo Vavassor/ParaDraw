@@ -76,7 +76,7 @@ namespace OrchidSeal.ParaDraw
 
             // Center segment indices
 
-            EllipsoidGeneration.AddQuadStripIndices(triangles, outTriangleBase, inTriangleBase, meridians);
+            IndexGeneration.AddQuadStrip(triangles, outTriangleBase, inTriangleBase, meridians);
             outTriangleBase += 6 * meridians;
             inTriangleBase += 2 * meridiansPlusSeam;
 

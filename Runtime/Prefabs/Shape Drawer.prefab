@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &478734180431955764
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4405553029776416289}
+  m_Layer: 0
+  m_Name: Dynamic Meshes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4405553029776416289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478734180431955764}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7128797664030407122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1153370362476685651
 GameObject:
   m_ObjectHideFlags: 0
@@ -4986,6 +5017,7 @@ Transform:
   m_Children:
   - {fileID: 601826937686171824}
   - {fileID: 6134901886076870698}
+  - {fileID: 4405553029776416289}
   - {fileID: 8447694104840089017}
   - {fileID: 4046498759879930679}
   m_Father: {fileID: 0}
@@ -5133,11 +5165,16 @@ MonoBehaviour:
   solidTransparentMaterial: {fileID: 2100000, guid: 0cb34f0007b217b44a992524edc8063e,
     type: 2}
   wireMaterial: {fileID: 2100000, guid: 288f3c379598df749b35aa1d028b951f, type: 2}
+  dynamicMeshPrefab: {fileID: 507808374605155926, guid: 13fefb4ef1f9f554b84c5b89310b8549,
+    type: 3}
+  dynamicMeshesGroup: {fileID: 478734180431955764}
   boxMesh: {fileID: -5495902117074765545, guid: e30d221afb0bb0349a5166ed85a877ee,
     type: 3}
   capsuleCapMesh: {fileID: -6899452363964872037, guid: 88d6c3682f1bdda488f0a11d31357963,
     type: 3}
   capsuleCylinderMesh: {fileID: -5970591049418575310, guid: b25990a4d5c7e214eb47441ce28e4498,
+    type: 3}
+  diskMesh: {fileID: 1155475587722039879, guid: 432c6f8866a245042b8f51f9fd277825,
     type: 3}
   rectangleMesh: {fileID: 5869761508291144630, guid: dcbe8cde847ab0242b30d99dd87bfb8d,
     type: 3}

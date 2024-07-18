@@ -51,33 +51,13 @@ namespace OrchidSeal.ParaDraw
         }
 
         /// <summary>
-        /// Add the indices for one row of quads.
-        /// </summary>
-        public static void AddQuadStripIndices(int[] triangles, int outTriangleBase, int inTriangleBase, int count)
-        {
-            for (int j = 0; j < count; ++j)
-            {
-                var o = 6 * j + outTriangleBase;
-                var k = j + inTriangleBase;
-
-                triangles[o + 0] = k;
-                triangles[o + 1] = k + 1;
-                triangles[o + 2] = k + count + 1;
-
-                triangles[o + 3] = k + count + 1;
-                triangles[o + 4] = k + 1;
-                triangles[o + 5] = k + count + 2;
-            }
-        }
-
-        /// <summary>
         /// Add the indices for an ellipsoidal segment.
         /// </summary>
         public static void AddSegmentIndices(int[] triangles, int outTriangleBase, int inTriangleBase, int parallelStart, int parallelEnd, int meridians)
         {
             for (int i = parallelStart; i < parallelEnd; ++i)
             {
-                AddQuadStripIndices(triangles, 6 * meridians * i + outTriangleBase, (meridians + 1) * i + inTriangleBase, meridians);
+                IndexGeneration.AddQuadStrip(triangles, 6 * meridians * i + outTriangleBase, (meridians + 1) * i + inTriangleBase, meridians);
             }
         }
 

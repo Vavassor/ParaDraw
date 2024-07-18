@@ -3,6 +3,7 @@
 ## v0.8.0
 
 - Make the arrow head for DrawRay face the viewer. [PR#2](https://github.com/Vavassor/ParaDraw/pull/2)
+- Added solid drawing for boxes, capsules, ellipsoids, meshes, rectangles, and spheres. [PR#3](https://github.com/Vavassor/ParaDraw/pull/7)
 
 ## v0.7.0
 
