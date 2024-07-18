@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 
 namespace OrchidSeal.ParaDraw
@@ -178,6 +178,205 @@ namespace OrchidSeal.ParaDraw
         public void DrawRay(Vector3 origin, Vector3 direction, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
             lineDrawer.DrawRay(origin, direction, color, lineWidth, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid box.
+        /// </summary>
+        /// <param name="center">The box center.</param>
+        /// <param name="rotation">The box rotation.</param>
+        /// <param name="size">The box side lengths.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidBox(Vector3 center, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidBox(center, rotation, size, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid box collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidBoxCollider(BoxCollider collider, Color color, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            DrawSolidBox(colliderTransform.TransformPoint(collider.center), colliderTransform.rotation, Vector3.Scale(colliderTransform.lossyScale, collider.size), color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid capsule.
+        /// </summary>
+        /// <param name="start">The start point of the center line.</param>
+        /// <param name="end">The end point of the center line.</param>
+        /// <param name="radius">The distance from the center line to the surface.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidCapsule(Vector3 start, Vector3 end, float radius, Color color, float duration = 0.0f)
+        {
+            var direction = end - start;
+            meshDrawer.DrawSolidCapsule(0.5f * (start + end), Quaternion.LookRotation(Vector3.forward, direction), direction.magnitude, radius, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid capsule collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidCapsuleCollider(CapsuleCollider collider, Color color, float duration = 0.0f)
+        {
+            Vector3 axis;
+            float radius;
+            float height;
+            var colliderTransform = collider.transform;
+            var lossyScale = colliderTransform.lossyScale;
+            var unscaledHeight = Mathf.Max(collider.height - 2.0f * collider.radius, 0.0001f);
+
+            switch (collider.direction)
+            {
+                default:
+                case 0:
+                    radius = Mathf.Max(lossyScale.y, lossyScale.z) * collider.radius;
+                    height = unscaledHeight * lossyScale.x;
+                    axis = colliderTransform.TransformDirection(Vector3.right);
+                    break;
+                case 1:
+                    radius = Mathf.Max(lossyScale.x, lossyScale.z) * collider.radius;
+                    height = unscaledHeight * lossyScale.y;
+                    axis = colliderTransform.TransformDirection(Vector3.up);
+                    break;
+                case 2:
+                    radius = Mathf.Max(lossyScale.x, lossyScale.y) * collider.radius;
+                    height = unscaledHeight * lossyScale.z;
+                    axis = colliderTransform.TransformDirection(Vector3.forward);
+                    break;
+            }
+
+            var center = colliderTransform.TransformPoint(collider.center);
+            meshDrawer.DrawSolidCapsule(center, Quaternion.LookRotation(axis), height, radius, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid collider.
+        /// 
+        /// Supports BoxCollider, CapsuleCollider, MeshCollider, and SphereCollider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidCollider(Collider collider, Color color, float duration = 0.0f)
+        {
+            var foundType = collider.GetType();
+
+            if (foundType == typeof(BoxCollider))
+            {
+                DrawSolidBoxCollider((BoxCollider)collider, color, duration);
+            }
+            else if (foundType == typeof(CapsuleCollider))
+            {
+                DrawSolidCapsuleCollider((CapsuleCollider)collider, color, duration);
+            }
+            else if (foundType == typeof(MeshCollider))
+            {
+                DrawSolidMeshCollider((MeshCollider)collider, color, duration);
+            }
+            else if (foundType == typeof(SphereCollider))
+            {
+                DrawSolidSphereCollider((SphereCollider)collider, color, duration);
+            }
+        }
+
+        /// <summary>
+        /// Draws a solid ellipsoid with a given rotation and lengths of semi-axes.
+        /// </summary>
+        /// <param name="center">The center point.</param>
+        /// <param name="rotation">The rotation.</param>
+        /// <param name="scale">The lengths of the semi-axes.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidEllipsoid(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidEllipsoid(center, rotation, scale, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid mesh with a given transform.
+        /// </summary>
+        /// <param name="position">The transform translation.</param>
+        /// <param name="rotation">The transform rotation.</param>
+        /// <param name="scale">The transform scale.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidMesh(mesh, position, rotation, scale, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid mesh collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidMeshCollider(MeshCollider collider, Color color, float duration = 0.0f)
+        {
+            var t = collider.transform;
+            meshDrawer.DrawSolidMesh(collider.sharedMesh, t.position, t.rotation, t.lossyScale, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid rectangle.
+        /// </summary>
+        /// <param name="center">The rectangle center.</param>
+        /// <param name="rotation">The rectangle rotation.</param>
+        /// <param name="size">The rectangle side lengths.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidRectangle(Vector3 center, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidRectangle(center, rotation, size, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid rectangle.
+        /// </summary>
+        /// <param name="center">The rectangle center.</param>
+        /// <param name="axis">The axis perpendicular to the rectangle.</param>
+        /// <param name="size">The rectangle side lengths.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidRectangle(Vector3 center, Vector3 axis, Vector2 size, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidRectangle(center, Quaternion.LookRotation(axis), size, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid sphere.
+        /// </summary>
+        /// <param name="center">The sphere center.</param>
+        /// <param name="radius">The sphere radius.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidSphere(Vector3 center, float radius, Color color, float duration = 0.0f)
+        {
+            meshDrawer.DrawSolidEllipsoid(center, Quaternion.identity, radius * Vector3.one, color, duration);
+        }
+
+        /// <summary>
+        /// Draws a solid sphere collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidSphereCollider(SphereCollider collider, Color color, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            var lossyScale = colliderTransform.lossyScale;
+            var center = colliderTransform.TransformPoint(collider.center);
+            var radius = collider.radius * Mathf.Max(lossyScale.x, lossyScale.y, lossyScale.z);
+            meshDrawer.DrawSolidEllipsoid(center, Quaternion.identity, radius * Vector3.one, color, duration);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 
 #if UNITY_ANDROID
@@ -18,6 +18,16 @@ namespace OrchidSeal.ParaDraw
         public GameObject meshPrefab;
         public GameObject meshesGroup;
         public Material androidWireMaterial;
+        public Material solidOpaqueMaterial;
+        public Material solidTransparentMaterial;
+        public Material wireMaterial;
+
+        [Header("Base Meshes")]
+        public Mesh boxMesh;
+        public Mesh capsuleCapMesh;
+        public Mesh capsuleCylinderMesh;
+        public Mesh rectangleMesh;
+        public Mesh sphereMesh;
 
 #if UNITY_ANDROID
         private int cachedMeshIndex;
@@ -30,6 +40,45 @@ namespace OrchidSeal.ParaDraw
         private MeshFilter[] meshFilters = new MeshFilter[4];
         private MeshRenderer[] meshRenderers = new MeshRenderer[4];
         private MaterialPropertyBlock[] propertyBlocks = new MaterialPropertyBlock[4];
+
+        public void DrawSolidBox(Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
+        {
+            DrawSolidMesh(boxMesh, position, rotation, size, color, duration);
+        }
+
+        public void DrawSolidCapsule(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0.0f)
+        {
+            var extentY = 0.5f * height * (rotation * Vector3.up);
+            var scale = radius * Vector3.one;
+            DrawSolidMesh(capsuleCapMesh, center + extentY, rotation, scale, color, duration);
+            DrawSolidMesh(capsuleCylinderMesh, center, rotation, new Vector3(radius, 0.5f * height, radius), color, duration);
+            DrawSolidMesh(capsuleCapMesh, center - extentY, rotation * Quaternion.Euler(180.0f, 0.0f, 0.0f), scale, color, duration);
+        }
+
+        public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
+        {
+            AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
+
+            if (!meshFilter)
+            {
+                return;
+            }
+
+            meshFilter.sharedMesh = mesh;
+            propertyBlock.SetColor("_SurfaceColor", color);
+            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, material, duration);
+        }
+
+        public void DrawSolidRectangle(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
+        {
+            DrawSolidMesh(rectangleMesh, position, rotation, new Vector3(size.x, size.y, 1.0f), color, duration);
+        }
+
+        public void DrawSolidEllipsoid(Vector3 center, Quaternion rotation, Vector3 radii, Color color, float duration = 0.0f)
+        {
+            DrawSolidMesh(sphereMesh, center, rotation, radii, color, duration);
+        }
 
         public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)
         {
@@ -73,15 +122,29 @@ namespace OrchidSeal.ParaDraw
                 meshRenderer.materials = materials;
             }
 #else
-            meshFilter.mesh = mesh;
+            meshFilter.sharedMesh = mesh;
 #endif // UNITY_ANDROID
 
             propertyBlock.SetColor("_WireColor", color);
             propertyBlock.SetFloat("_WireThickness", lineWidth * 20000.0f);
+            EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, wireMaterial, duration);
+        }
+
+        private void EnableMesh(MeshRenderer meshRenderer, MaterialPropertyBlock propertyBlock, Vector3 position, Quaternion rotation, Vector3 scale, Material material, float duration)
+        {
+            var materials = meshRenderer.materials;
+
+            for (var i = 0; i < materials.Length; i++)
+            {
+                materials[i] = material;
+            }
+
+            meshRenderer.materials = materials;
+
             meshRenderer.SetPropertyBlock(propertyBlock);
             meshRenderer.enabled = true;
-            meshObject.transform.SetPositionAndRotation(position, rotation);
-            meshObject.transform.localScale = scale;
+            meshObjects[meshIndexEnd].transform.SetPositionAndRotation(position, rotation);
+            meshObjects[meshIndexEnd].transform.localScale = scale;
             meshDurations[meshIndexEnd] = duration;
             meshIndexEnd += 1;
         }

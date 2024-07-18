@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UdonSharp;
 
 namespace OrchidSeal.ParaDraw.Sample

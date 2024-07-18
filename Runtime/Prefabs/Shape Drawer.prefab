@@ -5012,26 +5012,6 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4138510809112718193}
-  linePrefab: {fileID: 9061369546469791220, guid: b44c640765cbec543905d82a463698f7,
-    type: 3}
-  lineRenderers:
-  - {fileID: 5262177186573687303}
-  - {fileID: 1810073184236093549}
-  - {fileID: 858739322996884014}
-  - {fileID: 5807978470233487064}
-  - {fileID: 2402561822089302498}
-  - {fileID: 427808219543313399}
-  - {fileID: 8189927530435048207}
-  - {fileID: 7534019723551527275}
-  - {fileID: 5359290943948788059}
-  - {fileID: 7670347755621042339}
-  - {fileID: 5101154274171910825}
-  - {fileID: 524233994813421754}
-  - {fileID: 1153192458105237726}
-  - {fileID: 145186886494364173}
-  - {fileID: 6771764779144651834}
-  - {fileID: 6797495522364558607}
-  linesGroup: {fileID: 3794470916331089097}
   lineDrawer: {fileID: 9098069128081415172}
   meshDrawer: {fileID: 6430444231966015396}
   pointSystem: {fileID: 5957375709069873848}
@@ -5149,6 +5129,20 @@ MonoBehaviour:
     type: 3}
   meshesGroup: {fileID: 1153370362476685651}
   androidWireMaterial: {fileID: 2100000, guid: 48fa8f4dc60387646b0cf0e8676f823d, type: 2}
+  solidOpaqueMaterial: {fileID: 2100000, guid: fa3b108d36301f449afa11ac981b1846, type: 2}
+  solidTransparentMaterial: {fileID: 2100000, guid: 0cb34f0007b217b44a992524edc8063e,
+    type: 2}
+  wireMaterial: {fileID: 2100000, guid: 288f3c379598df749b35aa1d028b951f, type: 2}
+  boxMesh: {fileID: -5495902117074765545, guid: e30d221afb0bb0349a5166ed85a877ee,
+    type: 3}
+  capsuleCapMesh: {fileID: -6899452363964872037, guid: 88d6c3682f1bdda488f0a11d31357963,
+    type: 3}
+  capsuleCylinderMesh: {fileID: -5970591049418575310, guid: b25990a4d5c7e214eb47441ce28e4498,
+    type: 3}
+  rectangleMesh: {fileID: 5869761508291144630, guid: dcbe8cde847ab0242b30d99dd87bfb8d,
+    type: 3}
+  sphereMesh: {fileID: 4711208715938537054, guid: 7f1d226c86f410048b1684f54ba7888c,
+    type: 3}
 --- !u!114 &9142051976429608569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5168,7 +5162,7 @@ MonoBehaviour:
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 0
   Reliable: 0
-  _syncMethod: 0
+  _syncMethod: 2
   serializedProgramAsset: {fileID: 11400000, guid: 7df07347b4dca6b41a189bd364275258,
     type: 2}
   programSource: {fileID: 11400000, guid: 1c8de3e265e3c9f4d8686be519a9fd8a, type: 2}
@@ -5236,7 +5230,7 @@ MonoBehaviour:
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 0
   Reliable: 0
-  _syncMethod: 0
+  _syncMethod: 2
   serializedProgramAsset: {fileID: 11400000, guid: 04aa7ce6d52a7f248b3036064ac055d3,
     type: 2}
   programSource: {fileID: 11400000, guid: 0b31596a7ad092346a1e5a80b0b89c47, type: 2}
