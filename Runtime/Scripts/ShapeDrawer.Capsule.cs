@@ -15,8 +15,8 @@ namespace OrchidSeal.ParaDraw
         /// Draws a solid capsule.
         /// </summary>
         /// <param name="center">The capsule center</param>
-        /// <param name="rotation"></param>
-        /// <param name="height">The </param>
+        /// <param name="rotation">The capsule rotation.</param>
+        /// <param name="height">The capsule height.</param>
         /// <param name="radius">The distance from the center line to the surface.</param>
         /// <param name="color">The surface color.</param>
         /// <param name="duration">The number of seconds the surface should be visible for.</param>
