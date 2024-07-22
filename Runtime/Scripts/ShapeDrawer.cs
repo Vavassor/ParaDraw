@@ -10,10 +10,6 @@ namespace OrchidSeal.ParaDraw
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public partial class ShapeDrawer : UdonSharpBehaviour
     {
-        public ParticleSystem pointSystem;
-
-        private ParticleSystem.EmitParams emitParams;
-
         /// <summary>
         /// Draws 3D axes representing a given transform.
         /// </summary>
@@ -38,27 +34,6 @@ namespace OrchidSeal.ParaDraw
         public void DrawAxes(Transform t, float lineWidth = 0.005f, float duration = 0.0f)
         {
             DrawAxes(t.position, t.rotation, t.lossyScale, lineWidth, duration);
-        }
-
-        /// <summary>
-        /// Draws a point.
-        /// </summary>
-        /// <param name="point">The point position.</param>
-        /// <param name="color">The point color.</param>
-        /// <param name="radius">The point radius.</param>
-        /// <param name="duration">The number of seconds the point should be visible for.</param>
-        public void DrawPoint(Vector3 point, Color color, float radius = 0.02f, float duration = 0.0f)
-        {
-            if (!gameObject.activeInHierarchy)
-            {
-                return;
-            }
-
-            emitParams.position = point;
-            emitParams.startColor = color;
-            emitParams.startSize = radius;
-            emitParams.startLifetime = Mathf.Max(duration, Time.deltaTime + 1e-4f);
-            pointSystem.Emit(emitParams, 1);
         }
 
         /// <summary>
