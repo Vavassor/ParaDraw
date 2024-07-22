@@ -43,9 +43,9 @@ namespace OrchidSeal.ParaDraw
         /// <param name="size">The box side lengths.</param>
         /// <param name="color">The surface color.</param>
         /// <param name="duration">The number of seconds the surface should be visible for.</param>
-        public void DrawSolidBox(Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
+        public void DrawSolidBox(Vector3 center, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
         {
-            DrawSolidMesh(boxMesh, position, rotation, size, color, duration);
+            DrawSolidMesh(boxMesh, center, rotation, size, color, duration);
         }
 
         /// <summary>

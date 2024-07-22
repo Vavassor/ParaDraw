@@ -15,7 +15,7 @@ namespace OrchidSeal.ParaDraw
         /// </summary>
         /// <param name="center">The center point.</param>
         /// <param name="rotation">The rotation.</param>
-        /// <param name="scale">The lengths of the semi-axes.</param>
+        /// <param name="radii">The lengths of the semi-axes.</param>
         /// <param name="color">The surface color.</param>
         /// <param name="duration">The number of seconds the surface should be visible for.</param>
         public void DrawSolidEllipsoid(Vector3 center, Quaternion rotation, Vector3 radii, Color color, float duration = 0.0f)
@@ -55,15 +55,15 @@ namespace OrchidSeal.ParaDraw
         /// </summary>
         /// <param name="center">The center point.</param>
         /// <param name="rotation">The rotation.</param>
-        /// <param name="scale">The lengths of the semi-axes.</param>
+        /// <param name="radii">The lengths of the semi-axes.</param>
         /// <param name="color">The line color.</param>
         /// <param name="lineWidth">The line width.</param>
         /// <param name="duration">The number of seconds the line should be visible for.</param>
-        public void DrawWireEllipsoid(Vector3 center, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        public void DrawWireEllipsoid(Vector3 center, Quaternion rotation, Vector3 radii, Color color, float lineWidth = 0.005f, float duration = 0.0f)
         {
-            var axisX = rotation * (scale.x * Vector3.right);
-            var axisY = rotation * (scale.y * Vector3.up);
-            var axisZ = rotation * (scale.z * Vector3.forward);
+            var axisX = rotation * (radii.x * Vector3.right);
+            var axisY = rotation * (radii.y * Vector3.up);
+            var axisZ = rotation * (radii.z * Vector3.forward);
             DrawWireEllipsoid(center, axisX, axisY, axisZ, color, lineWidth, duration);
         }
 
