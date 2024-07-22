@@ -1,15 +1,13 @@
-﻿using UdonSharp;
 using UnityEngine;
 
 namespace OrchidSeal.ParaDraw
 {
     /// <summary>
-    /// Draw text in 3D space.
+    /// Draws text in 3D space.
     /// </summary>
-    [DefaultExecutionOrder(-1)]
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class TextDrawer : UdonSharpBehaviour
+    public partial class ShapeDrawer
     {
+        [Header("Text")]
         public GameObject[] textObjects = new GameObject[4];
         public GameObject textPrefab;
         public GameObject textsGroup;
@@ -18,6 +16,28 @@ namespace OrchidSeal.ParaDraw
         private int textIndexEnd;
         private TMPro.TextMeshProUGUI[] texts = new TMPro.TextMeshProUGUI[4];
 
+        /// <summary>
+        /// Draws text at a position in 3D space. Text always faces the camera.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="position">The text center.</param>
+        /// <param name="color">The font color.</param>
+        /// <param name="yOffset">The text center height above the given position.</param>
+        /// <param name="duration">The number of seconds the text should be visible for.</param>
+        public void DrawText(string text, Vector3 position, Color color, float yOffset = 0.0f, float duration = 0.0f)
+        {
+            DrawText(text, position, Vector3.one, color, yOffset, duration);
+        }
+
+        /// <summary>
+        /// Draws text at a position in 3D space with a given scale. Text always faces the camera.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="position">The text center.</param>
+        /// <param name="scale">The text scale.</param>
+        /// <param name="color">The font color.</param>
+        /// <param name="yOffset">The text center height above the given position.</param>
+        /// <param name="duration">The number of seconds the text should be visible for.</param>
         public void DrawText(string text, Vector3 position, Vector3 scale, Color color, float yOffset = 0.0f, float duration = 0.0f)
         {
             var textMesh = AllocateText();
@@ -92,7 +112,7 @@ namespace OrchidSeal.ParaDraw
             textObjects[lastTextIndex] = tempTextObjects;
         }
 
-        private void Start()
+        private void StartTextDrawer()
         {
             for (var i = 0; i < textObjects.Length; i++)
             {
@@ -100,7 +120,7 @@ namespace OrchidSeal.ParaDraw
             }
         }
 
-        private void Update()
+        private void UpdateTextDrawer()
         {
             var i = 0;
 

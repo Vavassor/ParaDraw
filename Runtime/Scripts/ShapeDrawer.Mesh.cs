@@ -1,4 +1,3 @@
-using UdonSharp;
 using UnityEngine;
 
 #if UNITY_ANDROID
@@ -15,29 +14,18 @@ namespace OrchidSeal.ParaDraw
     ///
     /// "Meshes" (no qualifier) are one of several "base" meshes and transformed to match parameters.
     /// "Dynamic" meshes are ones whos geometry is changing frequently, potentially every update.
-    [DefaultExecutionOrder(-1)]
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class MeshDrawer : UdonSharpBehaviour
+    public partial class ShapeDrawer
     {
+        [Header("Mesh")]
         public GameObject[] meshObjects = new GameObject[4];
         public GameObject meshPrefab;
         public GameObject meshesGroup;
+        public GameObject dynamicMeshPrefab;
+        public GameObject dynamicMeshesGroup;
         public Material androidWireMaterial;
         public Material solidOpaqueMaterial;
         public Material solidTransparentMaterial;
         public Material wireMaterial;
-
-        [Header("Dynamic Meshes")]
-        public GameObject dynamicMeshPrefab;
-        public GameObject dynamicMeshesGroup;
-
-        [Header("Base Meshes")]
-        public Mesh boxMesh;
-        public Mesh capsuleCapMesh;
-        public Mesh capsuleCylinderMesh;
-        public Mesh diskMesh;
-        public Mesh rectangleMesh;
-        public Mesh sphereMesh;
 
 #if UNITY_ANDROID
         private int cachedMeshIndex;
@@ -60,40 +48,14 @@ namespace OrchidSeal.ParaDraw
         private GameObject[] dynamicMeshObjects = new GameObject[0];
         private MaterialPropertyBlock[] dynamicPropertyBlocks = new MaterialPropertyBlock[0];
 
-        public void DrawEllipticRingSection(Vector3 center, Quaternion rotation, Vector2 radii, float width, float startAngle, float endAngle, Color color, float duration = 0.0f)
-        {
-            AllocateDynamicMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
-
-            if (!meshFilter)
-            {
-                return;
-            }
-
-            DiskGeneration.CreateEllipticRingSection(dynamicMeshes[dynamicMeshIndexEnd], radii, width, startAngle, endAngle, 32);
-            propertyBlock.SetColor("_SurfaceColor", color);
-            var material = color.a >= 0.999f ? solidOpaqueMaterial : solidTransparentMaterial;
-            EnableDynamicMesh(meshRenderer, propertyBlock, center, rotation, Vector3.one, material, duration);
-        }
-
-        public void DrawEllipticDisk(Vector3 center, Quaternion rotation, Vector2 radii, Color color, float duration = 0.0f)
-        {
-            DrawSolidMesh(diskMesh, center, rotation, new Vector3(radii.x, radii.y, 1.0f), color, duration);
-        }
-
-        public void DrawSolidBox(Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration = 0.0f)
-        {
-            DrawSolidMesh(boxMesh, position, rotation, size, color, duration);
-        }
-
-        public void DrawSolidCapsule(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0.0f)
-        {
-            var extentY = 0.5f * height * (rotation * Vector3.up);
-            var scale = radius * Vector3.one;
-            DrawSolidMesh(capsuleCapMesh, center + extentY, rotation, scale, color, duration);
-            DrawSolidMesh(capsuleCylinderMesh, center, rotation, new Vector3(radius, 0.5f * height, radius), color, duration);
-            DrawSolidMesh(capsuleCapMesh, center - extentY, rotation * Quaternion.Euler(180.0f, 0.0f, 0.0f), scale, color, duration);
-        }
-
+        /// <summary>
+        /// Draws a solid mesh with a given transform.
+        /// </summary>
+        /// <param name="position">The transform translation.</param>
+        /// <param name="rotation">The transform rotation.</param>
+        /// <param name="scale">The transform scale.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
         public void DrawSolidMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0.0f)
         {
             AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
@@ -109,16 +71,27 @@ namespace OrchidSeal.ParaDraw
             EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, material, duration);
         }
 
-        public void DrawSolidRectangle(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0.0f)
+        /// <summary>
+        /// Draws a solid mesh collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The surface color.</param>
+        /// <param name="duration">The number of seconds the surface should be visible for.</param>
+        public void DrawSolidMeshCollider(MeshCollider collider, Color color, float duration = 0.0f)
         {
-            DrawSolidMesh(rectangleMesh, position, rotation, new Vector3(size.x, size.y, 1.0f), color, duration);
+            var t = collider.transform;
+            DrawSolidMesh(collider.sharedMesh, t.position, t.rotation, t.lossyScale, color, duration);
         }
 
-        public void DrawSolidEllipsoid(Vector3 center, Quaternion rotation, Vector3 radii, Color color, float duration = 0.0f)
-        {
-            DrawSolidMesh(sphereMesh, center, rotation, radii, color, duration);
-        }
-
+        /// <summary>
+        /// Draws a mesh with a given transform.
+        /// </summary>
+        /// <param name="position">The transform translation.</param>
+        /// <param name="rotation">The transform rotation.</param>
+        /// <param name="scale">The transform scale.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the line should be visible for.</param>
         public void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float lineWidth = 0.005f, float duration = 0.0f, bool shouldCache = true)
         {
             AllocateMesh(out MeshFilter meshFilter, out MeshRenderer meshRenderer, out MaterialPropertyBlock propertyBlock);
@@ -167,6 +140,19 @@ namespace OrchidSeal.ParaDraw
             propertyBlock.SetColor("_WireColor", color);
             propertyBlock.SetFloat("_WireThickness", lineWidth * 20000.0f);
             EnableMesh(meshRenderer, propertyBlock, position, rotation, scale, wireMaterial, duration);
+        }
+
+        /// <summary>
+        /// Draws a mesh collider.
+        /// </summary>
+        /// <param name="collider">The collider.</param>
+        /// <param name="color">The line color.</param>
+        /// <param name="lineWidth">The line width.</param>
+        /// <param name="duration">The number of seconds the mesh should be visible for.</param>
+        public void DrawWireMeshCollider(MeshCollider collider, Color color, float lineWidth = 0.005f, float duration = 0.0f)
+        {
+            var colliderTransform = collider.transform;
+            DrawWireMesh(collider.sharedMesh, colliderTransform.position, colliderTransform.rotation, colliderTransform.lossyScale, color, lineWidth, duration);
         }
 
         private void SetMaterial(MeshRenderer meshRenderer, Material material)
@@ -427,7 +413,7 @@ namespace OrchidSeal.ParaDraw
         }
 #endif // UNITY_ANDROID
 
-        private void Start()
+        private void StartMeshDrawer()
         {
             for (var i = 0; i < meshObjects.Length; i++)
             {
@@ -437,7 +423,7 @@ namespace OrchidSeal.ParaDraw
             }
         }
 
-        private void Update()
+        private void UpdateMeshDrawer()
         {
             var i = 0;
 
