@@ -25,8 +25,8 @@
   ],
   "unity": "2022.3",
   "unityRelease": "6f1",
-  "url": "https://github.com/Vavassor/ParaDraw/releases/download/v0.7.0/com.orchidseal.paradraw-0.7.0.zip",
-  "version": "0.7.0",
+  "url": "https://github.com/Vavassor/ParaDraw/releases/download/v0.8.0/com.orchidseal.paradraw-0.8.0.zip",
+  "version": "0.8.0",
   "vpmDependencies": {
     "com.vrchat.worlds": ">=3.5.2 < 3.7.X"
   }

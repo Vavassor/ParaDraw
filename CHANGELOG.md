@@ -2,9 +2,12 @@
 
 ## v0.8.0
 
+Released July 22, 2024.
+
 - Make the arrow head for DrawRay face the viewer. [PR#2](https://github.com/Vavassor/ParaDraw/pull/2)
 - Added solid drawing for boxes, capsules, ellipsoids, meshes, rectangles, and spheres. [PR#7](https://github.com/Vavassor/ParaDraw/pull/7)
 - Added disk, sector, and ring drawing. [PR#8](https://github.com/Vavassor/ParaDraw/pull/8)
+- Merged LineDrawer, MeshDrawer, and TextDrawer into ShapeDrawer. [PR#10](https://github.com/Vavassor/ParaDraw/pull/10)
 
 ## v0.7.0
 
