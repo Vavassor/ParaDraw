@@ -1,3 +1,5 @@
+[![Discord - Community Chat](https://img.shields.io/badge/Discord-Community_Chat-7289da?logo=discord&logoColor=7289da)](https://discord.gg/XJYmP5dFJs) [![Website - Orchid Seal](https://img.shields.io/badge/Website-Orchid_Seal-af004f)](https://orchidseal.com/)
+
 # ParaDraw
 
 Drawing tools for visual debugging in [VRChat](https://vrchat.com) worlds.
